@@ -8,12 +8,17 @@ public class VisualComponent extends ImageView {
     Component component;
     Integer X;
     Integer Y;
+    boolean clickedOn = false;
+    static int imageSize = 100;
 
     private static final String folderURL = "file:resources/textures/";
     private static final String defaultImage = "whales.png";
 
     protected void setImage(String imageName) {
         this.setImage(new Image(folderURL + imageName));
+        this.setFitWidth(imageSize);
+        this.setFitHeight(imageSize);
+        this.refresh();
     }
 
     void refresh() {
@@ -31,5 +36,10 @@ public class VisualComponent extends ImageView {
             setImage(defaultImage);
             System.out.println("got exception in VisualComponent()");
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Visual Component of " + component.getType() + " X:" + X + " Y:" + Y;
     }
 }
