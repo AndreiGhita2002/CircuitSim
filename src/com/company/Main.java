@@ -25,6 +25,12 @@ public class Main extends Application {
     public Circuit circuit = new Circuit();
     public List<VisualComponent> visualComponents = new ArrayList<>();
 
+    enum Placing {
+        NOTHING, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH
+    }
+
+    Placing placingNow = Placing.NOTHING;
+
     @Override
     public void start(Stage stage) {
 
@@ -40,24 +46,119 @@ public class Main extends Application {
         drawGrid(gc);
 
         scene.setOnMouseReleased(event -> {
-            for (VisualComponent vc : visualComponents) {
-                if (vc.clickedOn) {
-                    vc.clickedOn = false;
-                    int eventX = (int) (event.getX());
-                    int eventY = (int) (event.getY());
+            if (placingNow.equals(Placing.NOTHING)) {
+                for (VisualComponent vc : visualComponents) {
+                    if (vc.clickedOn) {
 
-                    vc.X = (eventX / gridCellWidth) * gridCellWidth;
-                    vc.Y = (eventY / gridCellHeight) * gridCellHeight;
+                        vc.clickedOn = false;
+                        int eventX = (int) (event.getX());
+                        int eventY = (int) (event.getY());
 
-                    vc.refresh();
-                    System.out.println("Released on " + vc.toString());
+                        int cX = (eventX / gridCellWidth) * gridCellWidth;
+                        int cY = (eventY / gridCellHeight) * gridCellHeight;
+
+                        boolean validPosition = true;
+                        for (VisualComponent vc2 : visualComponents) {
+                            if (!vc2.equals(vc) && (vc2.X == cX) && (vc2.Y == cY)) {
+                                validPosition = false;
+                                System.out.println("Invalid position with " + vc.toString());
+                                break;
+                            }
+                        }
+                        if (validPosition) {
+                            vc.X = cX;
+                            vc.Y = cY;
+
+                            vc.refresh();
+                            System.out.println("Released on " + vc.toString());
+                        }
+                        break;
+                    }
                 }
+            } else {
+                int eventX = (int) (event.getX());
+                int eventY = (int) (event.getY());
+
+                int cX = (eventX / gridCellWidth) * gridCellWidth;
+                int cY = (eventY / gridCellHeight) * gridCellHeight;
+
+                boolean validPosition = true;
+                for (VisualComponent vc2 : visualComponents) {
+                    if ((vc2.X == cX) && (vc2.Y == cY)) {
+                        validPosition = false;
+                        System.out.println("Invalid position with on X:" + cX + " Y:" + cY);
+                        break;
+                    }
+                }
+                if (validPosition) newComponent(root, getCurrentComponentSelection(), cX, cY);
+
+                System.out.println("New component at X:" + cX + " Y:" + cY);
+                placingNow = Placing.NOTHING;
+            }
+        });
+        scene.setOnKeyReleased(event -> {
+            switch (event.getCode()) {
+                case R:
+                    for (VisualComponent vc : visualComponents) {
+                        if (vc.clickedOn) {
+                            vc.rotateProperty().setValue(vc.rotateProperty().get() + 90);
+                            vc.refresh();
+                        }
+                    }
+                    break;
+//                case A:
+//                    System.out.println(scene.cursorProperty().toString());
+//
+////                    newComponent(root, getComponentFromEnum(placingNow), );
+//                    break;
+                case X:
+                    System.out.println("you pressed X");
+                    break;
+                case DIGIT0:
+                    placingNow = Placing.NOTHING;
+                    break;
+                case DIGIT1:
+                    placingNow = Placing.WIRE;
+                    break;
+                case DIGIT2:
+                    placingNow = Placing.BATTERY;
+                    break;
+                case DIGIT3:
+                    placingNow = Placing.LIGHT;
+                    break;
+                case DIGIT4:
+                    placingNow = Placing.RESISTOR;
+                    break;
+                case DIGIT5:
+                    placingNow = Placing.SWITCH;
+                    break;
+
             }
         });
 
         // Testing things:
-        newComponent(root, new Battery(), 200, 200);
-        newComponent(root, new LightBulb(), 500, 300);
+        newComponent(root, new Battery(12.0), 200, 200);
+        newComponent(root, new LightBulb(5.0), 500, 300);
+    }
+
+    Component getCurrentComponentSelection() {
+        switch (placingNow) {
+            case NOTHING:
+                return null;
+            case WIRE:
+                //TODO place wire
+                return null;
+            case BATTERY:
+                return new Battery(12.0);
+            case LIGHT:
+                return new LightBulb(0.0);
+            case RESISTOR:
+                return new Resistor(3.0);
+            case SWITCH:
+                return new Switch();
+        }
+        System.out.println("this shouldn't have happened in getComponentFromEnum()");
+        return null;
     }
 
     void newComponent(Group group, Component component, int x, int y) {
@@ -66,6 +167,7 @@ public class Main extends Application {
         circuit.addComponent(vc.component);
         group.getChildren().add(vc);
         vc.refresh();
+        updateCircuit();
 
         Scene scene = group.getScene();
 
@@ -81,6 +183,10 @@ public class Main extends Application {
             vc.clickedOn = true;
             System.out.println("Clicked on " + vc.toString());
         });
+    }
+
+    void updateCircuit() {
+
     }
 
     void drawGrid(GraphicsContext gc) {

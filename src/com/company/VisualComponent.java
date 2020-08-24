@@ -30,12 +30,7 @@ public class VisualComponent extends ImageView {
         this.X = x;
         this.Y = y;
 
-        try {
-            setImage(component.getType() + ".png");
-        } catch (Exception e) {
-            setImage(defaultImage);
-            System.out.println("got exception in VisualComponent()");
-        }
+        setImage(component.getType() + ".png");
     }
 
     @Override

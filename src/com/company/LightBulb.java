@@ -1,12 +1,7 @@
 package com.company;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class LightBulb extends Component {
 
-    Pin pin1;
-    Pin pin2;
 
     Double getBrightness() {
         //TODO getBrightness based on the current flowing through
@@ -19,24 +14,12 @@ public class LightBulb extends Component {
     }
 
     @Override
-    List<Pin> getPins() {
-        List<Pin> out = new ArrayList<>();
-
-        out.add(pin1);
-        out.add(pin2);
-
-        return out;
+    boolean hasWire(WireNode wireNode) {
+        return pin1.equals(wireNode) || pin2.equals(wireNode);
     }
 
-    @Override
-    boolean hasPin(int id) {
-        return pin1.ID == id || pin2.ID == id;
-    }
-
-    @Override
-    Pin getPin(int id) {
-        if (pin1.ID == id) return pin1;
-        if (pin2.ID == id) return pin2;
-        return null;
+    LightBulb(Double resistance) {
+        super();
+        this.resistance = resistance;
     }
 }

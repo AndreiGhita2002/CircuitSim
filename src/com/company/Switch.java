@@ -1,10 +1,12 @@
 package com.company;
 
-public class Battery extends Component {
+public class Switch extends Component {
+
+    boolean closed = false;
 
     @Override
     String getType() {
-        return "Battery";
+        return "Switch";
     }
 
     @Override
@@ -12,8 +14,8 @@ public class Battery extends Component {
         return pin1.equals(wireNode) || pin2.equals(wireNode);
     }
 
-    Battery(Double emf) {
+    Switch() {
         super();
-        this.PD = emf;
+        PD = 0.0;
     }
 }
