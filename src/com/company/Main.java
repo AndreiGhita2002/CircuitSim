@@ -106,11 +106,6 @@ public class Main extends Application {
                         }
                     }
                     break;
-//                case A:
-//                    System.out.println(scene.cursorProperty().toString());
-//
-////                    newComponent(root, getComponentFromEnum(placingNow), );
-//                    break;
                 case X:
                     System.out.println("you pressed X");
                     break;

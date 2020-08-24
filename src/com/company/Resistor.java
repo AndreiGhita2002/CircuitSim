@@ -11,8 +11,8 @@ public class Resistor extends Component {
         return false;
     }
 
-    Resistor(Double resitance) {
+    Resistor(Double resistance) {
         super();
-        this.resistance = resitance;
+        this.resistance = resistance;
     }
 }
