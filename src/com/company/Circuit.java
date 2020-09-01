@@ -8,9 +8,14 @@ public class Circuit {
 
     // WireNodes are nodes and Components are edges
     List<Component> components;
+    List<WireNode> wires;
 
     void addComponent(Component component) {
         components.add(component);
+    }
+
+    void addWireNode(WireNode wireNode) {
+        wires.add(wireNode);
     }
 
     boolean findLoops(Battery start) {
@@ -25,7 +30,7 @@ public class Circuit {
         while(!stack.empty()) {
             Component currentComponent = stack.pop();
 
-            // TODO might not work with some loops
+            //TODO might not work with some loops
             // solution: make an array for all the components that you went through
             // or change the stack into an array
 
@@ -60,5 +65,6 @@ public class Circuit {
 
     Circuit() {
         components = new ArrayList<>();
+        wires = new ArrayList<>();
     }
 }

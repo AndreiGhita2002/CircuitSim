@@ -2,7 +2,6 @@ package com.company;
 
 public class LightBulb extends Component {
 
-
     Double getBrightness() {
         //TODO getBrightness based on the current flowing through
         return 1.0;

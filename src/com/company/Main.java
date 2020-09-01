@@ -23,7 +23,7 @@ public class Main extends Application {
     private final int gridCellHeight = H / gridCellNumber;
 
     public Circuit circuit = new Circuit();
-    public List<VisualComponent> visualComponents = new ArrayList<>();
+    public List<VisualEntity> entityList = new ArrayList<>();
 
     enum Placing {
         NOTHING, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH
@@ -47,10 +47,10 @@ public class Main extends Application {
 
         scene.setOnMouseReleased(event -> {
             if (placingNow.equals(Placing.NOTHING)) {
-                for (VisualComponent vc : visualComponents) {
-                    if (vc.clickedOn) {
+                for (VisualEntity ve : entityList) {
+                    if (ve.clickedOn) {
 
-                        vc.clickedOn = false;
+                        ve.clickedOn = false;
                         int eventX = (int) (event.getX());
                         int eventY = (int) (event.getY());
 
@@ -58,19 +58,20 @@ public class Main extends Application {
                         int cY = (eventY / gridCellHeight) * gridCellHeight;
 
                         boolean validPosition = true;
-                        for (VisualComponent vc2 : visualComponents) {
-                            if (!vc2.equals(vc) && (vc2.X == cX) && (vc2.Y == cY)) {
+                        for (VisualEntity ve2 : entityList) {
+                            if (!ve2.equals(ve) && (ve2.X == cX) && (ve2.Y == cY)) {
                                 validPosition = false;
-                                System.out.println("Invalid position with " + vc.toString());
+//                                System.out.println("Invalid position with " + ve.toString());
                                 break;
                             }
                         }
                         if (validPosition) {
-                            vc.X = cX;
-                            vc.Y = cY;
+                            ve.X = cX;
+                            ve.Y = cY;
 
-                            vc.refresh();
-                            System.out.println("Released on " + vc.toString());
+                            ve.refresh();
+                            updateCircuit();
+//                            System.out.println("Released on " + ve.toString());
                         }
                         break;
                     }
@@ -83,26 +84,33 @@ public class Main extends Application {
                 int cY = (eventY / gridCellHeight) * gridCellHeight;
 
                 boolean validPosition = true;
-                for (VisualComponent vc2 : visualComponents) {
-                    if ((vc2.X == cX) && (vc2.Y == cY)) {
+                for (VisualEntity ve2 : entityList) {
+                    if ((ve2.X == cX) && (ve2.Y == cY)) {
                         validPosition = false;
-                        System.out.println("Invalid position with on X:" + cX + " Y:" + cY);
+//                        System.out.println("Invalid position with on X:" + cX + " Y:" + cY);
                         break;
                     }
                 }
-                if (validPosition) newComponent(root, getCurrentComponentSelection(), cX, cY);
-
-                System.out.println("New component at X:" + cX + " Y:" + cY);
+                if (validPosition) {
+                    Component comp = getCurrentComponentSelection();
+                    if (comp == null) {
+                        newWireNode(root, cX, cY);
+                    } else {
+                        newComponent(root, comp, cX, cY);
+                    }
+                }
+                updateCircuit();
+//                System.out.println("New component at X:" + cX + " Y:" + cY);
                 placingNow = Placing.NOTHING;
             }
         });
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case R:
-                    for (VisualComponent vc : visualComponents) {
-                        if (vc.clickedOn) {
-                            vc.rotateProperty().setValue(vc.rotateProperty().get() + 90);
-                            vc.refresh();
+                    for (VisualEntity ve : entityList) {
+                        if (ve.clickedOn && ve.entityType.equals("component")) {
+                            ve.rotateProperty().setValue(ve.rotateProperty().get() + 90);
+                            ve.refresh();
                         }
                     }
                     break;
@@ -139,9 +147,7 @@ public class Main extends Application {
     Component getCurrentComponentSelection() {
         switch (placingNow) {
             case NOTHING:
-                return null;
             case WIRE:
-                //TODO place wire
                 return null;
             case BATTERY:
                 return new Battery(12.0);
@@ -156,9 +162,20 @@ public class Main extends Application {
         return null;
     }
 
+    VisualEntity getVisualEntity(int x, int y) {
+        for (VisualEntity ve : entityList) {
+            if (ve.X == x && ve.Y == y) {
+//                System.out.println("getVisualEntity returned " + ve.toString());
+                return ve;
+            }
+        }
+//        System.out.println("No visualEntity with X:" + x + " Y:" + y + " found.");
+        return null;
+    }
+
     void newComponent(Group group, Component component, int x, int y) {
         VisualComponent vc = new VisualComponent(component, x, y);
-        visualComponents.add(vc);
+        entityList.add(vc);
         circuit.addComponent(vc.component);
         group.getChildren().add(vc);
         vc.refresh();
@@ -171,7 +188,7 @@ public class Main extends Application {
         });
 
         vc.setOnMouseExited((EventHandler<Event>) event -> {
-            scene.setCursor(Cursor.DEFAULT); //Change cursor to hand
+            scene.setCursor(Cursor.DEFAULT); //Change cursor to pointer
         });
 
         vc.setOnMouseClicked((EventHandler<Event>) event -> {
@@ -180,8 +197,48 @@ public class Main extends Application {
         });
     }
 
-    void updateCircuit() {
+    void newWireNode(Group group, int x, int y) {
+        VisualWireNode ve = new VisualWireNode(new WireNode(), x, y);
+        entityList.add(ve);
+        circuit.addWireNode(ve.wireNode);
+        group.getChildren().add(ve);
+        ve.refresh();
+        updateCircuit();
 
+        Scene scene = group.getScene();
+
+        ve.setOnMouseEntered((EventHandler<Event>) event -> {
+            scene.setCursor(Cursor.HAND); //Change cursor to hand
+        });
+
+        ve.setOnMouseExited((EventHandler<Event>) event -> {
+            scene.setCursor(Cursor.DEFAULT); //Change cursor to pointer
+        });
+
+        ve.setOnMouseClicked((EventHandler<Event>) event -> {
+            ve.clickedOn = true;
+            System.out.println("Clicked on " + ve.toString());
+        });
+    }
+
+    void updateCircuit() {
+        updateVisualWires();
+        //TODO write updateCircuit() that should connect all the components
+        // finds a bunch of connected wires
+        // makes a single WireNode from these wires
+        // connects every adjacent component to the WireNode
+    }
+
+    void updateVisualWires() {
+        for (VisualEntity ve : entityList) {
+            if (ve.entityType.equals("wire")) {
+                ve.north = getVisualEntity(ve.X, ve.Y - gridCellHeight) != null;
+                ve.east  = getVisualEntity(ve.X + gridCellWidth, ve.Y)  != null;
+                ve.south = getVisualEntity(ve.X, ve.Y + gridCellHeight) != null;
+                ve.west  = getVisualEntity(ve.X - gridCellWidth, ve.Y)  != null;
+            }
+            ve.refresh();
+        }
     }
 
     void drawGrid(GraphicsContext gc) {
