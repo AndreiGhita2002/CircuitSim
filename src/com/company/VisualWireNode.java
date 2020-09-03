@@ -2,10 +2,7 @@ package com.company;
 
 public class VisualWireNode extends VisualEntity {
 
-    WireNode wireNode;
-
-    VisualWireNode(WireNode wire, int x, int y) {
-        this.wireNode = wire;
+    VisualWireNode(int x, int y) {
         this.X = x;
         this.Y = y;
         this.entityType = "wire";
@@ -27,6 +24,6 @@ public class VisualWireNode extends VisualEntity {
 
     @Override
     public String toString() {
-        return "Visual WireNode of wireNode " + wireNode.ID + " X:" + X + " Y:" + Y;
+        return "Visual WireNode of wireNode X:" + X + " Y:" + Y;
     }
 }

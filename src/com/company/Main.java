@@ -28,7 +28,6 @@ public class Main extends Application {
     enum Placing {
         NOTHING, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH
     }
-
     Placing placingNow = Placing.NOTHING;
 
     @Override
@@ -44,6 +43,7 @@ public class Main extends Application {
         stage.show();
 
         drawGrid(gc);
+        CircuitBuilder.setProperties(entityList, circuit, gridCellWidth, gridCellHeight);
 
         scene.setOnMouseReleased(event -> {
             if (placingNow.equals(Placing.NOTHING)) {
@@ -70,7 +70,7 @@ public class Main extends Application {
                             ve.Y = cY;
 
                             ve.refresh();
-                            updateCircuit();
+                            updateVisual();
 //                            System.out.println("Released on " + ve.toString());
                         }
                         break;
@@ -99,7 +99,7 @@ public class Main extends Application {
                         newComponent(root, comp, cX, cY);
                     }
                 }
-                updateCircuit();
+                updateVisual();
 //                System.out.println("New component at X:" + cX + " Y:" + cY);
                 placingNow = Placing.NOTHING;
             }
@@ -110,12 +110,15 @@ public class Main extends Application {
                     for (VisualEntity ve : entityList) {
                         if (ve.clickedOn && ve.entityType.equals("component")) {
                             ve.rotateProperty().setValue(ve.rotateProperty().get() + 90);
+                            ve.rotate();
                             ve.refresh();
                         }
                     }
                     break;
                 case X:
                     System.out.println("you pressed X");
+                    updateVisual();
+                    CircuitBuilder.updateCircuit();
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;
@@ -176,10 +179,9 @@ public class Main extends Application {
     void newComponent(Group group, Component component, int x, int y) {
         VisualComponent vc = new VisualComponent(component, x, y);
         entityList.add(vc);
-        circuit.addComponent(vc.component);
         group.getChildren().add(vc);
         vc.refresh();
-        updateCircuit();
+        updateVisual();
 
         Scene scene = group.getScene();
 
@@ -198,12 +200,11 @@ public class Main extends Application {
     }
 
     void newWireNode(Group group, int x, int y) {
-        VisualWireNode ve = new VisualWireNode(new WireNode(), x, y);
+        VisualWireNode ve = new VisualWireNode(x, y);
         entityList.add(ve);
-        circuit.addWireNode(ve.wireNode);
         group.getChildren().add(ve);
         ve.refresh();
-        updateCircuit();
+        updateVisual();
 
         Scene scene = group.getScene();
 
@@ -221,17 +222,9 @@ public class Main extends Application {
         });
     }
 
-    void updateCircuit() {
-        updateVisualWires();
-        //TODO write updateCircuit() that should connect all the components
-        // finds a bunch of connected wires
-        // makes a single WireNode from these wires
-        // connects every adjacent component to the WireNode
-    }
-
-    void updateVisualWires() {
+    void updateVisual() {
         for (VisualEntity ve : entityList) {
-            if (ve.entityType.equals("wire")) {
+            if (ve instanceof VisualWireNode) {
                 ve.north = getVisualEntity(ve.X, ve.Y - gridCellHeight) != null;
                 ve.east  = getVisualEntity(ve.X + gridCellWidth, ve.Y)  != null;
                 ve.south = getVisualEntity(ve.X, ve.Y + gridCellHeight) != null;

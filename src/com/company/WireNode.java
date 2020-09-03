@@ -32,6 +32,13 @@ public class WireNode {
         }
     }
 
+    void connect(Component component, int pin) {
+        if (!hasComponent(component)) {
+            componentList.add(component);
+        }
+        component.addConnection(this, pin);
+    }
+
     void removeComponent(Component component) {
         for (int i = 0; i < componentList.size(); i++) {
             if (componentList.get(i).equals(component)) {

@@ -9,7 +9,7 @@ public abstract class VisualEntity extends ImageView {
     Integer Y;
     boolean clickedOn = false;
     static int imageSize = 100;
-    String entityType;
+    String entityType; //TODO remove this and replace it with instanceof operand
 
     // if it's connected in that direction
     boolean north = false;
@@ -24,6 +24,12 @@ public abstract class VisualEntity extends ImageView {
         this.setImage(new Image(folderURL + imageName));
         this.setFitWidth(imageSize);
         this.setFitHeight(imageSize);
+    }
+
+    void rotate() {}
+
+    int orientation() {
+        return  -1;
     }
 
     void refresh() {
