@@ -28,6 +28,12 @@ public abstract class Component  {
         System.out.println("Component.addConnection() has been called with the argument: " + pin);
     }
 
+    int whichPin(WireNode wire) {
+        if (wire.equals(pin1)) return 1;
+        if (wire.equals(pin2)) return 2;
+        return -1;
+    }
+
     void flipPins() {
         WireNode extraNode = pin1;
         pin1 = pin2;

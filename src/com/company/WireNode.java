@@ -49,7 +49,16 @@ public class WireNode {
     }
 
     public String toString() {
-        return "WireNode with ID: " + ID + " connected with " + componentList;
+        StringBuilder out = new StringBuilder("WireNode with ID: " + ID + " connected with: ");
+
+        for (Component component : componentList) {
+            out.append("\n -");
+            out.append(component);
+            out.append(" pin: ");
+            out.append(component.whichPin(this));
+        }
+
+        return out.toString();
     }
 
     WireNode() {

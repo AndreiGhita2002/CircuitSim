@@ -61,7 +61,6 @@ public class Main extends Application {
                         for (VisualEntity ve2 : entityList) {
                             if (!ve2.equals(ve) && (ve2.X == cX) && (ve2.Y == cY)) {
                                 validPosition = false;
-//                                System.out.println("Invalid position with " + ve.toString());
                                 break;
                             }
                         }
@@ -71,7 +70,6 @@ public class Main extends Application {
 
                             ve.refresh();
                             updateVisual();
-//                            System.out.println("Released on " + ve.toString());
                         }
                         break;
                     }
@@ -87,7 +85,6 @@ public class Main extends Application {
                 for (VisualEntity ve2 : entityList) {
                     if ((ve2.X == cX) && (ve2.Y == cY)) {
                         validPosition = false;
-//                        System.out.println("Invalid position with on X:" + cX + " Y:" + cY);
                         break;
                     }
                 }
@@ -100,7 +97,6 @@ public class Main extends Application {
                     }
                 }
                 updateVisual();
-//                System.out.println("New component at X:" + cX + " Y:" + cY);
                 placingNow = Placing.NOTHING;
             }
         });
