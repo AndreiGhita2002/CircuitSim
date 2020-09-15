@@ -48,6 +48,10 @@ public class WireNode {
         }
     }
 
+    public String toString() {
+        return "WireNode with ID: " + ID + " connected with " + componentList;
+    }
+
     WireNode() {
         ID = nextID;
         nextID++;

@@ -22,6 +22,10 @@ public class VisualWireNode extends VisualEntity {
         relocate(X, Y);
     }
 
+    void highlight() {
+        setImage("whales.png");
+    }
+
     @Override
     public String toString() {
         return "Visual WireNode of wireNode X:" + X + " Y:" + Y;

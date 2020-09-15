@@ -3,7 +3,7 @@ package com.company;
 public class Resistor extends Component {
     @Override
     String getType() {
-        return "resistor";
+        return "Resistor";
     }
 
     @Override

@@ -12,7 +12,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class Main extends Application {
 
@@ -23,7 +22,8 @@ public class Main extends Application {
     private final int gridCellHeight = H / gridCellNumber;
 
     public Circuit circuit = new Circuit();
-    public List<VisualEntity> entityList = new ArrayList<>();
+    public ArrayList<VisualEntity> entityList = new ArrayList<>();
+    public CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
         NOTHING, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH
@@ -43,7 +43,7 @@ public class Main extends Application {
         stage.show();
 
         drawGrid(gc);
-        CircuitBuilder.setProperties(entityList, circuit, gridCellWidth, gridCellHeight);
+        builder.updateCircuit();
 
         scene.setOnMouseReleased(event -> {
             if (placingNow.equals(Placing.NOTHING)) {
@@ -118,7 +118,7 @@ public class Main extends Application {
                 case X:
                     System.out.println("you pressed X");
                     updateVisual();
-                    CircuitBuilder.updateCircuit();
+                    builder.updateCircuit();
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;

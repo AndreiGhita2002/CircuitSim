@@ -34,8 +34,9 @@ public abstract class Component  {
         pin2 = extraNode;
     }
 
-    Double getCurrent() {
-        return PD / resistance;   // I = V / R
+    @Override
+    public String toString() {
+        return this.name;
     }
 
     Component() {
