@@ -1,5 +1,7 @@
 package com.company;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class CircuitBuilder {
@@ -19,44 +21,35 @@ public class CircuitBuilder {
     }
 
     void updateCircuit() {
-
-        //TODO write updateCircuit() that should connect all the components
-        // finds a bunch of connected wires
-        // makes a single WireNode from these wires
-        // connects every adjacent component to the WireNode
-
         // resetting the circuit
         circuit.wires.clear();
         circuit.components.clear();
 
         // creates wire nodes
-        ArrayList<VisualWireNode> wireNodesLeft = new ArrayList<>();
-
-        //TODO use synchronized or something
+        ArrayList<VisualWireNode> wireNodesList = new ArrayList<>();
 
         for (VisualEntity ve : entityList) {
-            if (ve instanceof VisualWireNode) wireNodesLeft.add((VisualWireNode) ve);
+            if (ve instanceof VisualWireNode) wireNodesList.add((VisualWireNode) ve);
         }
 
         // VisualWireNode wire : wireNodesLeft
-        for (int i = 0; i < wireNodesLeft.size(); i++) {
-            WireNode newNode = new WireNode();
-            recursionStep(wireNodesLeft, newNode, wireNodesLeft.get(i));
-            circuit.addWireNode(newNode);
-        }
-
-        for (WireNode wire : circuit.wires) {
-            System.out.println(wire);
+        for (int i = 0; i < wireNodesList.size(); i++) {
+            if (!wireNodesList.get(i).highlighted) {
+                WireNode newNode = new WireNode();
+                recursionStep(wireNodesList, newNode, wireNodesList.get(i));
+                circuit.addWireNode(newNode);
+            }
         }
     }
 
     void recursionStep(ArrayList<VisualWireNode> wiresLeft, WireNode newNode, VisualWireNode vw) {
-        wiresLeft.remove(vw);
+
+        if (vw.highlighted) return;
+
         vw.highlight();
 
-        // TODO debug this mess
-
-        // TODO fix this YandereDev thing
+        //TODO fix this YandereDev thing
+        // hell
         if (vw.north) {
             VisualEntity ve = getVisualEntity(vw.X, vw.Y - gridCellHeight);
 
@@ -114,6 +107,16 @@ public class CircuitBuilder {
             }
         }
     }
+
+    void buildFromFile(String path) throws IOException {
+
+        File file = new File(path);
+        throw new IOException();
+
+        //TODO build the circuit from the file
+        // throw exceptions if necessary
+    }
+
      CircuitBuilder(ArrayList<VisualEntity> entities, Circuit c, int w, int h) {
         entityList = entities;
         circuit = c;

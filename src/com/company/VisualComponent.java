@@ -13,8 +13,6 @@ public class VisualComponent extends VisualEntity {
         this.component = component;
         this.X = x;
         this.Y = y;
-        this.entityType = "component";
-
         setImage(component.getType() + ".png");
         refresh();
     }

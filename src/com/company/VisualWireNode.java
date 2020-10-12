@@ -2,11 +2,11 @@ package com.company;
 
 public class VisualWireNode extends VisualEntity {
 
+    boolean highlighted = false;
+
     VisualWireNode(int x, int y) {
         this.X = x;
         this.Y = y;
-        this.entityType = "wire";
-
         refresh();
     }
 
@@ -19,11 +19,13 @@ public class VisualWireNode extends VisualEntity {
         if (west)  direction += "W";
 
         setImage("Wire" + direction + ".png");
+        highlighted = false;
         relocate(X, Y);
     }
 
     void highlight() {
         setImage("whales.png");
+        highlighted = true;
     }
 
     @Override

@@ -8,44 +8,59 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
-public class Main extends Application {
+public class Editor extends Application {
 
-    private final int W = 1000;
-    private final int H = 1000;
-    private final int gridCellNumber = 10;
-    private final int gridCellWidth  = W / gridCellNumber;
-    private final int gridCellHeight = H / gridCellNumber;
+    static final int W = 1000;
+    static final int H = 1000;
+    static final int gridCellNumber = 10;
+    static final int gridCellWidth  = W / gridCellNumber;
+    static final int gridCellHeight = H / gridCellNumber;
 
-    public Circuit circuit = new Circuit();
-    public ArrayList<VisualEntity> entityList = new ArrayList<>();
-    public CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
+    public static Circuit circuit = new Circuit();
+    public static ArrayList<VisualEntity> entityList = new ArrayList<>();
+    public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
-        NOTHING, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH
+        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, NOTHING
     }
     Placing placingNow = Placing.NOTHING;
 
     @Override
     public void start(Stage stage) {
+        SplitPane splitPane = new SplitPane();
+        Scene scene = new Scene(splitPane, W + 200, H);
+        Group editorRoot = new Group();
+        Canvas editorCanvas = new Canvas(W, H);
+        GraphicsContext editorGC = editorCanvas.getGraphicsContext2D();
+        VBox menu = new VBox();
 
-        Group root = new Group();
-        Scene scene = new Scene(root, W, H);
-        Canvas canvas = new Canvas(W, H);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
+        // initializing the buttons
+        ArrayList<Button> buttonList = initButtons();
 
-        root.getChildren().add(canvas);
+        // initialising the menu
+//        menu.backgroundProperty().setValue(new BackgroundFill());
+
+        // adding all the elements and making the stage visible
+        splitPane.getItems().addAll(editorRoot, menu);
+        editorRoot.getChildren().add(editorCanvas);
+        menu.getChildren().addAll(buttonList);
+        stage.setTitle("CircuitSim");
         stage.setScene(scene);
         stage.show();
 
-        drawGrid(gc);
+        drawGrid(editorGC);
         builder.updateCircuit();
 
-        scene.setOnMouseReleased(event -> {
+        editorCanvas.setOnMouseReleased(event -> {
             if (placingNow.equals(Placing.NOTHING)) {
                 for (VisualEntity ve : entityList) {
                     if (ve.clickedOn) {
@@ -91,20 +106,19 @@ public class Main extends Application {
                 if (validPosition) {
                     Component comp = getCurrentComponentSelection();
                     if (comp == null) {
-                        newWireNode(root, cX, cY);
+                        newWireNode(editorRoot, cX, cY);
                     } else {
-                        newComponent(root, comp, cX, cY);
+                        newComponent(editorRoot, comp, cX, cY);
                     }
                 }
                 updateVisual();
-                placingNow = Placing.NOTHING;
             }
         });
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
                 case R:
                     for (VisualEntity ve : entityList) {
-                        if (ve.clickedOn && ve.entityType.equals("component")) {
+                        if (ve.clickedOn && ve instanceof VisualComponent) {
                             ve.rotateProperty().setValue(ve.rotateProperty().get() + 90);
                             ve.rotate();
                             ve.refresh();
@@ -115,6 +129,8 @@ public class Main extends Application {
                     System.out.println("you pressed X");
                     updateVisual();
                     builder.updateCircuit();
+                    System.out.println(circuit);
+                    System.out.println();
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;
@@ -134,13 +150,21 @@ public class Main extends Application {
                 case DIGIT5:
                     placingNow = Placing.SWITCH;
                     break;
+            }
+        });
 
+        // closing the application
+        stage.setOnCloseRequest(event -> {
+            try {
+                stop();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
         // Testing things:
-        newComponent(root, new Battery(12.0), 200, 200);
-        newComponent(root, new LightBulb(5.0), 500, 300);
+        newComponent(editorRoot, new Battery(12.0), 200, 200);
+        newComponent(editorRoot, new LightBulb(5.0), 500, 300);
     }
 
     Component getCurrentComponentSelection() {
@@ -164,11 +188,9 @@ public class Main extends Application {
     VisualEntity getVisualEntity(int x, int y) {
         for (VisualEntity ve : entityList) {
             if (ve.X == x && ve.Y == y) {
-//                System.out.println("getVisualEntity returned " + ve.toString());
                 return ve;
             }
         }
-//        System.out.println("No visualEntity with X:" + x + " Y:" + y + " found.");
         return null;
     }
 
@@ -249,7 +271,31 @@ public class Main extends Application {
         }
     }
 
+    ArrayList<Button> initButtons() {
+        ArrayList<Button> list = new ArrayList<>();
+        final int width  = 100;
+        final int height = 100;
+
+        for (int i = 0; i < Placing.values().length; i++) {
+            String str = Placing.values()[i].toString();
+            Button button = new Button(str);
+
+            int ci = i;
+            button.setOnAction(e -> placingNow = Placing.values()[ci]);
+            list.add(button);
+        }
+        return list;
+    }
+
     public static void main(String[] args) {
+        if (Arrays.asList(args).size() != 0) {
+            System.out.println("launching with args: " + Arrays.toString(args));
+            try {
+                builder.buildFromFile(args[0]);
+            } catch (Exception e) {
+                System.out.println(Arrays.toString(e.getStackTrace()));
+            }
+        }
         launch(args);
     }
 }

@@ -2,7 +2,6 @@ package com.company;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 public class Circuit {
 
@@ -18,30 +17,11 @@ public class Circuit {
         wires.add(wireNode);
     }
 
-    boolean findLoops(Battery start) {
-        Stack<Component> stack = new Stack<>();
-        Stack<Integer> pinStack = new Stack<>();
-        ArrayList<Component> componentChain = new ArrayList<>();
-        stack.add(start);
-        componentChain.add(start);
+    List<Component> findLoops(Battery start) {
 
-        int nextPin = 2;
 
-        while(!stack.empty()) {
-            Component currentComponent = stack.pop();
 
-            //TODO might not work with some loops
-            // solution: make an array for all the components that you went through
-            // or change the stack into an array
-
-            for (Component c : currentComponent.pin(nextPin).componentList) {
-                if (!c.equals(currentComponent)) {
-                    if (c.equals(start)) return true;
-                    stack.add(c);
-                }
-            }
-        }
-        return false;
+        return null;
     }
 
     void calculateCurrent() {
@@ -62,6 +42,15 @@ public class Circuit {
     }
 
     // TODO make a method that returns a graph made out of WireNodes and Components (WireNodes are nodes and Components are edges)
+
+    public String toString() {
+        StringBuilder out = new StringBuilder();
+        for (WireNode wire : wires) {
+            out.append(wire);
+            out.append("\n");
+        }
+        return out.toString();
+    }
 
     Circuit() {
         components = new ArrayList<>();

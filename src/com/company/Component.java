@@ -1,6 +1,8 @@
 package com.company;
 
-public abstract class Component  {
+import org.jgrapht.graph.DefaultEdge;
+
+public abstract class Component extends DefaultEdge {
 
     Double PD;
     Double resistance = 0.0;
@@ -8,10 +10,9 @@ public abstract class Component  {
     static int nextID = 0;
 
     protected WireNode pin1; // input
-    protected WireNode pin2; // output (for dimensional components)
+    protected WireNode pin2; // output
 
     abstract String getType();
-    abstract boolean hasWire(WireNode wireNode);
 
     WireNode pin(int x) {
         if (x == 1) return pin1;
@@ -34,10 +35,14 @@ public abstract class Component  {
         return -1;
     }
 
-    void flipPins() {
-        WireNode extraNode = pin1;
-        pin1 = pin2;
-        pin2 = extraNode;
+    @Override
+    public Object getSource() {
+        return super.getSource();
+    }
+
+    @Override
+    public Object getTarget() {
+        return super.getTarget();
     }
 
     @Override
