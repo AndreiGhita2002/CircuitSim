@@ -6,11 +6,6 @@ public class Resistor extends Component {
         return "Resistor";
     }
 
-    @Override
-    boolean hasWire(WireNode wireNode) {
-        return false;
-    }
-
     Resistor(Double resistance) {
         super();
         this.resistance = resistance;

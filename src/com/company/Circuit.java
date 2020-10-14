@@ -1,59 +1,51 @@
 package com.company;
 
-import java.util.ArrayList;
+import org.jgrapht.alg.cycle.StackBFSFundamentalCycleBasis;
+import org.jgrapht.alg.interfaces.CycleBasisAlgorithm;
+import org.jgrapht.graph.Multigraph;
+
 import java.util.List;
+import java.util.Set;
 
 public class Circuit {
 
     // WireNodes are nodes and Components are edges
-    List<Component> components;
-    List<WireNode> wires;
+    Multigraph<WireNode, Component> graph = new Multigraph<>(Component.class);
+    Set<List<Component>> cycles;
 
-    void addComponent(Component component) {
-        components.add(component);
+    void findLoops() {
+
+        StackBFSFundamentalCycleBasis<WireNode, Component> cyclesAlg = new StackBFSFundamentalCycleBasis(graph);
+        CycleBasisAlgorithm.CycleBasis<WireNode, Component> result = cyclesAlg.getCycleBasis();
+
+        System.out.println("Cycles found: " + result.getCycles());
+        cycles = result.getCycles();
+    }
+
+    void solve() {
+        findLoops();
+
+        //TODO solve the circuit
     }
 
     void addWireNode(WireNode wireNode) {
-        wires.add(wireNode);
+        graph.addVertex(wireNode);
     }
 
-    List<Component> findLoops(Battery start) {
-
-
-
+    WireNode getNodeWithID(int id) {
+        for (WireNode wire : graph.vertexSet()) {
+            if (wire.ID == id) return wire;
+        }
+        System.out.println("Circuit.getNodeWithID() didn't find any nodes with ID: " + id);
         return null;
     }
 
-    void calculateCurrent() {
-
-        // https://www.elprocus.com/kirchhoffs-laws-working-formula/
-        // needs to find how many unknown currents are there
-        // then find a node where they meet and a number of loops equal to number of currents
-
-    }
-
-    boolean checkShortCircuit() {
-
-        // if there is a path from a cell to itself that doesn't encounter any resistance,
-        // then it return true
-        // this should be done for every energy cell in the circuit
-
-        return false;
-    }
-
-    // TODO make a method that returns a graph made out of WireNodes and Components (WireNodes are nodes and Components are edges)
-
     public String toString() {
-        StringBuilder out = new StringBuilder();
-        for (WireNode wire : wires) {
-            out.append(wire);
-            out.append("\n");
-        }
-        return out.toString();
+        return graph.toString();
     }
 
-    Circuit() {
-        components = new ArrayList<>();
-        wires = new ArrayList<>();
+    void reset() {
+        graph = new Multigraph<>(Component.class);
+        cycles = null;
     }
 }

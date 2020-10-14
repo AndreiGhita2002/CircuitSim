@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -33,6 +34,7 @@ public class Editor extends Application {
         WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, NOTHING
     }
     Placing placingNow = Placing.NOTHING;
+    static Label infoLabel = new Label("");
 
     @Override
     public void start(Stage stage) {
@@ -49,10 +51,14 @@ public class Editor extends Application {
         // initialising the menu
 //        menu.backgroundProperty().setValue(new BackgroundFill());
 
+        infoLabel.setLayoutX(500);
+        infoLabel.setLayoutY(500);
+
         // adding all the elements and making the stage visible
         splitPane.getItems().addAll(editorRoot, menu);
         editorRoot.getChildren().add(editorCanvas);
         menu.getChildren().addAll(buttonList);
+        menu.getChildren().add(infoLabel);
         stage.setTitle("CircuitSim");
         stage.setScene(scene);
         stage.show();
@@ -126,11 +132,7 @@ public class Editor extends Application {
                     }
                     break;
                 case X:
-                    System.out.println("you pressed X");
-                    updateVisual();
-                    builder.updateCircuit();
-                    System.out.println(circuit);
-                    System.out.println();
+                    solveCircuit();
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;
@@ -205,10 +207,12 @@ public class Editor extends Application {
 
         vc.setOnMouseEntered((EventHandler<Event>) event -> {
             scene.setCursor(Cursor.HAND); //Change cursor to hand
+            infoLabel.setText(vc.component.toLongString());
         });
 
         vc.setOnMouseExited((EventHandler<Event>) event -> {
             scene.setCursor(Cursor.DEFAULT); //Change cursor to pointer
+            infoLabel.setText("");
         });
 
         vc.setOnMouseClicked((EventHandler<Event>) event -> {
@@ -273,8 +277,8 @@ public class Editor extends Application {
 
     ArrayList<Button> initButtons() {
         ArrayList<Button> list = new ArrayList<>();
-        final int width  = 100;
-        final int height = 100;
+//        final int width  = 100;
+//        final int height = 100;
 
         for (int i = 0; i < Placing.values().length; i++) {
             String str = Placing.values()[i].toString();
@@ -285,6 +289,15 @@ public class Editor extends Application {
             list.add(button);
         }
         return list;
+    }
+
+    void solveCircuit() {
+        System.out.println("you pressed X");
+        updateVisual();
+        builder.updateCircuit();
+        System.out.println(circuit);
+        System.out.println();
+        circuit.solve();
     }
 
     public static void main(String[] args) {
