@@ -87,6 +87,8 @@ public class CircuitBuilder {
             // adding the edge in the graph
             if (component != null) {
                 circuit.graph.addEdge(source, target, component);
+                //TODO fix this
+                // (says it doesn't allow loops)
             }
         }
     }
@@ -129,7 +131,7 @@ public class CircuitBuilder {
         // throw exceptions if necessary
     }
 
-     CircuitBuilder(ArrayList<VisualEntity> entities, Circuit c, int w, int h) {
+    CircuitBuilder(ArrayList<VisualEntity> entities, Circuit c, int w, int h) {
         entityList = entities;
         circuit = c;
         gridCellWidth = w;

@@ -7,8 +7,13 @@ public class Battery extends Component {
         return "Battery";
     }
 
-    Battery(Double emf) {
+    Battery(Double emf, Double res) {
         super();
         this.PD = emf;
+        this.resistance = res;
+    }
+
+    Battery(Double emf) {
+        this(emf, 0.0);
     }
 }

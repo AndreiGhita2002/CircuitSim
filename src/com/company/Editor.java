@@ -11,6 +11,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -49,7 +51,7 @@ public class Editor extends Application {
         ArrayList<Button> buttonList = initButtons();
 
         // initialising the menu
-//        menu.backgroundProperty().setValue(new BackgroundFill());
+        menu.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
 
         infoLabel.setLayoutX(500);
         infoLabel.setLayoutY(500);
@@ -70,7 +72,6 @@ public class Editor extends Application {
             if (placingNow.equals(Placing.NOTHING)) {
                 for (VisualEntity ve : entityList) {
                     if (ve.clickedOn) {
-
                         ve.clickedOn = false;
                         int eventX = (int) (event.getX());
                         int eventY = (int) (event.getY());
@@ -166,7 +167,12 @@ public class Editor extends Application {
 
         // Testing things:
         newComponent(editorRoot, new Battery(12.0), 200, 200);
-        newComponent(editorRoot, new LightBulb(5.0), 500, 300);
+        newComponent(editorRoot, new LightBulb(5.0), 400, 300);
+        newWireNode(editorRoot, 400, 200);
+        newWireNode(editorRoot, 500, 300);
+        newWireNode(editorRoot, 300, 300);
+        newWireNode(editorRoot, 200, 300);
+        newWireNode(editorRoot, 200, 500);
     }
 
     Component getCurrentComponentSelection() {
@@ -175,11 +181,11 @@ public class Editor extends Application {
             case WIRE:
                 return null;
             case BATTERY:
-                return new Battery(12.0);
+                return new Battery(12.0, 1.0);
             case LIGHT:
-                return new LightBulb(0.0);
+                return new LightBulb(2.0);
             case RESISTOR:
-                return new Resistor(3.0);
+                return new Resistor(4.0);
             case SWITCH:
                 return new Switch();
         }
@@ -217,7 +223,7 @@ public class Editor extends Application {
 
         vc.setOnMouseClicked((EventHandler<Event>) event -> {
             vc.clickedOn = true;
-            System.out.println("Clicked on " + vc.toString());
+//            System.out.println("Clicked on " + vc.toString());
         });
     }
 
@@ -240,7 +246,7 @@ public class Editor extends Application {
 
         ve.setOnMouseClicked((EventHandler<Event>) event -> {
             ve.clickedOn = true;
-            System.out.println("Clicked on " + ve.toString());
+//            System.out.println("Clicked on " + ve.toString());
         });
     }
 
@@ -292,7 +298,7 @@ public class Editor extends Application {
     }
 
     void solveCircuit() {
-        System.out.println("you pressed X");
+        System.out.println("Solving the circuit.....");
         updateVisual();
         builder.updateCircuit();
         System.out.println(circuit);

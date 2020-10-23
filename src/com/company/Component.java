@@ -5,6 +5,7 @@ import org.jgrapht.graph.DefaultEdge;
 public abstract class Component extends DefaultEdge {
 
     Double PD;
+    Double current = 0.0;
     Double resistance = 0.0;
     String name;
     static int nextID = 0;
@@ -21,9 +22,15 @@ public abstract class Component extends DefaultEdge {
         return super.getTarget();
     }
 
+    void calculateVoltage() {
+        // V = I * R
+        if (!getType().equals("Battery"))  PD = current * resistance;
+    }
+
     String toLongString() {
         String out = getType() + " " + name + "\n";
-        out += "Potential Difference: " + PD + " V\n";
+        out += "Voltage: " + PD + " V\n";
+        out += "Current: " + current + " A\n";
         if (resistance > 0) {
             out += "Resistance: " + resistance + " Ω\n";
         }
