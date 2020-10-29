@@ -1,5 +1,9 @@
 package com.company;
 
+import javafx.event.Event;
+import javafx.event.EventHandler;
+import javafx.scene.Cursor;
+
 public class VisualWireNode extends VisualEntity {
 
     boolean highlighted = false;
@@ -8,6 +12,22 @@ public class VisualWireNode extends VisualEntity {
         this.X = x;
         this.Y = y;
         refresh();
+
+        setOnMouseEntered((EventHandler<Event>) event -> {
+            getScene().setCursor(Cursor.HAND); //Change cursor to hand
+        });
+
+        setOnMouseExited((EventHandler<Event>) event -> {
+            getScene().setCursor(Cursor.DEFAULT); //Change cursor to pointer
+        });
+
+        setOnMouseClicked((EventHandler<Event>) event -> {
+            if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+                clickedOn = true;
+            } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
+                toDelete = true;
+            }
+        });
     }
 
     @Override
@@ -24,7 +44,7 @@ public class VisualWireNode extends VisualEntity {
     }
 
     void highlight() {
-        setImage("whales.png");
+        //TODO change the texture slightly when highlighted
         highlighted = true;
     }
 

@@ -8,6 +8,7 @@ public abstract class VisualEntity extends ImageView {
     Integer X;
     Integer Y;
     boolean clickedOn = false;
+    boolean toDelete = false;
     static int imageSize = 100;
 
     // if it's connected in that direction
@@ -27,8 +28,10 @@ public abstract class VisualEntity extends ImageView {
 
     void rotate() {}
 
+    String toSaveFormat() {return null;}
+
     int orientation() {
-        return  -1;
+        return -1;
     }
 
     boolean connectedWith(int direction) {
@@ -40,8 +43,6 @@ public abstract class VisualEntity extends ImageView {
         }
         return false;
     }
-
-
 
     void refresh() {
         relocate(X, Y);

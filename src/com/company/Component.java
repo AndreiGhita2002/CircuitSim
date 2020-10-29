@@ -4,7 +4,7 @@ import org.jgrapht.graph.DefaultEdge;
 
 public abstract class Component extends DefaultEdge {
 
-    Double PD;
+    Double PD = 0.0;
     Double current = 0.0;
     Double resistance = 0.0;
     String name;
@@ -35,6 +35,30 @@ public abstract class Component extends DefaultEdge {
             out += "Resistance: " + resistance + " Ω\n";
         }
         return out;
+    }
+
+    String toSaveFormat() {
+        return getType() + ":" + name + ":" + PD + ":" + resistance;
+    }
+
+    static Component initComponent(String type, String name, Double pd, Double res) {
+        Component comp = null;
+        switch (type.toLowerCase()) {
+            case "battery":
+                comp = new Battery(pd, res);
+                break;
+            case "lightbulb":
+                comp = new LightBulb(res);
+                break;
+            case "resistor":
+                comp = new Resistor(res);
+                break;
+            case "switch":
+                comp = new Switch();
+                break;
+        }
+        if (comp != null) comp.name = name;
+        return comp;
     }
 
     @Override

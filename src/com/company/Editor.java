@@ -1,10 +1,8 @@
 package com.company;
 
 import javafx.application.Application;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -33,16 +31,16 @@ public class Editor extends Application {
     public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
-        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, NOTHING
+        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, NOTHING
     }
-    Placing placingNow = Placing.NOTHING;
+    static Placing placingNow = Placing.NOTHING;
     static Label infoLabel = new Label("");
+    static Group editorRoot = new Group();
 
     @Override
     public void start(Stage stage) {
         SplitPane splitPane = new SplitPane();
         Scene scene = new Scene(splitPane, W + 200, H);
-        Group editorRoot = new Group();
         Canvas editorCanvas = new Canvas(W, H);
         GraphicsContext editorGC = editorCanvas.getGraphicsContext2D();
         VBox menu = new VBox();
@@ -113,9 +111,9 @@ public class Editor extends Application {
                 if (validPosition) {
                     Component comp = getCurrentComponentSelection();
                     if (comp == null) {
-                        newWireNode(editorRoot, cX, cY);
+                        newWireNode(cX, cY);
                     } else {
-                        newComponent(editorRoot, comp, cX, cY);
+                        newComponent(comp, cX, cY);
                     }
                 }
                 updateVisual();
@@ -126,14 +124,19 @@ public class Editor extends Application {
                 case R:
                     for (VisualEntity ve : entityList) {
                         if (ve.clickedOn && ve instanceof VisualComponent) {
-                            ve.rotateProperty().setValue(ve.rotateProperty().get() + 90);
                             ve.rotate();
-                            ve.refresh();
                         }
                     }
+                    updateVisual();
                     break;
                 case X:
                     solveCircuit();
+                    break;
+                case S:
+                    save("/Users/andrei/Desktop/test.txt");
+                    break;
+                case L:
+                    load("/Users/andrei/Desktop/test.txt");
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;
@@ -166,13 +169,13 @@ public class Editor extends Application {
         });
 
         // Testing things:
-        newComponent(editorRoot, new Battery(12.0), 200, 200);
-        newComponent(editorRoot, new LightBulb(5.0), 400, 300);
-        newWireNode(editorRoot, 400, 200);
-        newWireNode(editorRoot, 500, 300);
-        newWireNode(editorRoot, 300, 300);
-        newWireNode(editorRoot, 200, 300);
-        newWireNode(editorRoot, 200, 500);
+        newComponent(new Battery(12.0), 200, 200);
+        newComponent(new LightBulb(5.0), 400, 300);
+        newWireNode(400, 200);
+        newWireNode(500, 300);
+        newWireNode(300, 300);
+        newWireNode(200, 300);
+        newWireNode(200, 500);
     }
 
     Component getCurrentComponentSelection() {
@@ -202,64 +205,50 @@ public class Editor extends Application {
         return null;
     }
 
-    void newComponent(Group group, Component component, int x, int y) {
-        VisualComponent vc = new VisualComponent(component, x, y);
-        entityList.add(vc);
-        group.getChildren().add(vc);
-        vc.refresh();
-        updateVisual();
+    void newComponent(Component component, int x, int y) {
+        newComponent(new VisualComponent(component, x, y));
 
-        Scene scene = group.getScene();
-
-        vc.setOnMouseEntered((EventHandler<Event>) event -> {
-            scene.setCursor(Cursor.HAND); //Change cursor to hand
-            infoLabel.setText(vc.component.toLongString());
-        });
-
-        vc.setOnMouseExited((EventHandler<Event>) event -> {
-            scene.setCursor(Cursor.DEFAULT); //Change cursor to pointer
-            infoLabel.setText("");
-        });
-
-        vc.setOnMouseClicked((EventHandler<Event>) event -> {
-            vc.clickedOn = true;
-//            System.out.println("Clicked on " + vc.toString());
-        });
     }
 
-    void newWireNode(Group group, int x, int y) {
-        VisualWireNode ve = new VisualWireNode(x, y);
+    void newComponent(VisualComponent vc) {
+        entityList.add(vc);
+        editorRoot.getChildren().add(vc);
+        vc.refresh();
+        updateVisual();
+    }
+
+    void newWireNode(int x, int y) {
+        newWireNode(new VisualWireNode(x, y));
+
+    }
+
+    void newWireNode(VisualWireNode ve) {
         entityList.add(ve);
-        group.getChildren().add(ve);
+        editorRoot.getChildren().add(ve);
         ve.refresh();
         updateVisual();
-
-        Scene scene = group.getScene();
-
-        ve.setOnMouseEntered((EventHandler<Event>) event -> {
-            scene.setCursor(Cursor.HAND); //Change cursor to hand
-        });
-
-        ve.setOnMouseExited((EventHandler<Event>) event -> {
-            scene.setCursor(Cursor.DEFAULT); //Change cursor to pointer
-        });
-
-        ve.setOnMouseClicked((EventHandler<Event>) event -> {
-            ve.clickedOn = true;
-//            System.out.println("Clicked on " + ve.toString());
-        });
     }
 
     void updateVisual() {
+        ArrayList<VisualEntity> delete = new ArrayList<>();
+
         for (VisualEntity ve : entityList) {
+            if (ve.toDelete) delete.add(ve);
+
             if (ve instanceof VisualWireNode) {
-                ve.north = getVisualEntity(ve.X, ve.Y - gridCellHeight) != null;
-                ve.east  = getVisualEntity(ve.X + gridCellWidth, ve.Y)  != null;
-                ve.south = getVisualEntity(ve.X, ve.Y + gridCellHeight) != null;
-                ve.west  = getVisualEntity(ve.X - gridCellWidth, ve.Y)  != null;
+                VisualEntity temp = getVisualEntity(ve.X, ve.Y - gridCellHeight);
+                ve.north = temp != null && (temp.orientation() == 0 || temp.orientation() == 2 || temp.orientation() == -1);
+                temp = getVisualEntity(ve.X + gridCellWidth, ve.Y);
+                ve.east  = temp != null && (temp.orientation() == 1 || temp.orientation() == 3 || temp.orientation() == -1);
+                temp = getVisualEntity(ve.X, ve.Y + gridCellHeight);
+                ve.south = temp != null && (temp.orientation() == 2 || temp.orientation() == 0 || temp.orientation() == -1);
+                temp = getVisualEntity(ve.X - gridCellWidth, ve.Y);
+                ve.west  = temp != null && (temp.orientation() == 3 || temp.orientation() == 1 || temp.orientation() == -1);
             }
             ve.refresh();
         }
+        editorRoot.getChildren().removeAll(delete);
+        entityList.removeAll(delete);
     }
 
     void drawGrid(GraphicsContext gc) {
@@ -304,6 +293,38 @@ public class Editor extends Application {
         System.out.println(circuit);
         System.out.println();
         circuit.solve();
+    }
+
+    void save(String path) {
+        builder.saveToFile(path);
+
+    }
+
+    void load(String path) {
+        builder.buildFromFile(path);
+
+        System.out.println(builder.entityList);
+
+        ArrayList<Node> toRemove = new ArrayList<>();
+        for (int i = 0; i < editorRoot.getChildren().size(); i++) {
+            if (editorRoot.getChildren().get(i) instanceof VisualEntity) {
+                toRemove.add(editorRoot.getChildren().get(i));
+            }
+        }
+        editorRoot.getChildren().removeAll(toRemove);
+
+        for (VisualEntity ve : entityList) {
+
+            //TODO fix this
+            // should make a copy of entity list
+
+            if (ve instanceof VisualComponent) {
+                newComponent((VisualComponent) ve);
+            } else if (ve instanceof VisualWireNode) {
+                newWireNode((VisualWireNode) ve);
+            }
+        }
+        updateVisual();
     }
 
     public static void main(String[] args) {

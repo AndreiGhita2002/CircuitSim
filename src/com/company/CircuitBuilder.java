@@ -1,8 +1,10 @@
 package com.company;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public class CircuitBuilder {
 
@@ -94,7 +96,6 @@ public class CircuitBuilder {
     }
 
     void recursionStep(ArrayList<VisualWireNode> wiresLeft, WireNode newNode, VisualWireNode vw) {
-
         if (vw.highlighted) return;
         vw.highlight();
 
@@ -121,14 +122,87 @@ public class CircuitBuilder {
         }
     }
 
-    void buildFromFile(String path) throws IOException {
-
+    void buildFromFile(String path) {
         File file = new File(path);
-        if (file.isFile()) System.out.println("TODO: finish buildFromFile()");
-        throw new IOException();
+        try {
+            if (file.createNewFile()) System.out.println("File created: " + path);
+            else System.out.println("File already exists.");
 
-        //TODO build the circuit from the file
-        // throw exceptions if necessary
+            Scanner scn = new Scanner(file);
+            StringBuilder str = new StringBuilder();
+            while(scn.hasNextLine()) {
+                str.append(scn.nextLine()).append("\n");
+            }
+            System.out.println(str.toString());
+            buildFromString(str.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void buildFromString(String str) {
+        String[] lines = str.split("\n");
+
+        boolean componentSection = true;
+        for (int i = 0; i < lines.length; i++) {
+            // line represents a component
+            if (lines[i].charAt(0) == '+') {
+                String[] words = lines[i].split(" ");
+                int x = Integer.parseInt(words[1]);
+                int y = Integer.parseInt(words[2]);
+                int ori = Integer.parseInt(words[3]);
+
+                String[] compWords = words[4].split(":");
+                Component comp = Component.initComponent(compWords[0], compWords[1],
+                        Double.parseDouble(compWords[2]), Double.parseDouble(compWords[3]));
+                VisualComponent vc = new VisualComponent(comp, x, y, ori);
+                entityList.add(vc);
+            }
+
+            // line is the wireNode list
+            if (lines[i].charAt(0) == '!') {
+                String[] words = lines[i].split(" ");
+                for (int j = 0; j < words.length; j+=2) {
+                    entityList.add(new VisualWireNode(Integer.parseInt(words[i]), Integer.parseInt(words[i + 1])));
+                }
+            }
+        }
+    }
+
+    void saveToFile(String path) {
+        StringBuilder str = new StringBuilder();
+        ArrayList<Integer> wirePositions = new ArrayList<>();
+
+        str.append("Components:\n");
+        for (VisualEntity ve : entityList) {
+            if (ve instanceof VisualComponent)  {
+                str.append("+ ");
+                str.append(ve.toSaveFormat()).append("\n");
+            }
+            if (ve instanceof VisualWireNode)  {
+                wirePositions.add(ve.X);
+                wirePositions.add(ve.Y);
+            }
+        }
+
+        str.append("Wire nodes:\n! ");
+        for (int i = 0; i < wirePositions.size(); i+=2) {
+            str.append(wirePositions.get(i));
+            str.append(" ");
+            str.append(wirePositions.get(i + 1));
+            str.append(" ");
+        }
+
+        try {
+            if (new File(path).createNewFile()) System.out.println("File created: " + path);
+            else System.out.println("File already exists.");
+
+            FileWriter writer = new FileWriter(path);
+            writer.write(str.toString());
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     CircuitBuilder(ArrayList<VisualEntity> entities, Circuit c, int w, int h) {
