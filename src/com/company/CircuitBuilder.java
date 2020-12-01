@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class CircuitBuilder {
@@ -122,18 +123,13 @@ public class CircuitBuilder {
         }
     }
 
-    void buildFromFile(String path) {
-        File file = new File(path);
+    void buildFromFile(File file) {
         try {
-            if (file.createNewFile()) System.out.println("File created: " + path);
-            else System.out.println("File already exists.");
-
             Scanner scn = new Scanner(file);
             StringBuilder str = new StringBuilder();
             while(scn.hasNextLine()) {
                 str.append(scn.nextLine()).append("\n");
             }
-            System.out.println(str.toString());
             buildFromString(str.toString());
         } catch (IOException e) {
             e.printStackTrace();
@@ -143,11 +139,10 @@ public class CircuitBuilder {
     void buildFromString(String str) {
         String[] lines = str.split("\n");
 
-        boolean componentSection = true;
-        for (int i = 0; i < lines.length; i++) {
+        for (String line : lines) {
             // line represents a component
-            if (lines[i].charAt(0) == '+') {
-                String[] words = lines[i].split(" ");
+            if (line.charAt(0) == '+') {
+                String[] words = line.split(" ");
                 int x = Integer.parseInt(words[1]);
                 int y = Integer.parseInt(words[2]);
                 int ori = Integer.parseInt(words[3]);
@@ -160,16 +155,16 @@ public class CircuitBuilder {
             }
 
             // line is the wireNode list
-            if (lines[i].charAt(0) == '!') {
-                String[] words = lines[i].split(" ");
-                for (int j = 0; j < words.length; j+=2) {
-                    entityList.add(new VisualWireNode(Integer.parseInt(words[i]), Integer.parseInt(words[i + 1])));
+            if (line.charAt(0) == '!') {
+                String[] words = line.substring(2).split(" ");
+                for (int j = 0; j < words.length / 2; j++) {
+                    entityList.add(new VisualWireNode(Integer.parseInt(words[j * 2]), Integer.parseInt(words[j * 2 + 1])));
                 }
             }
         }
     }
 
-    void saveToFile(String path) {
+    void saveToFile(File file) {
         StringBuilder str = new StringBuilder();
         ArrayList<Integer> wirePositions = new ArrayList<>();
 
@@ -194,15 +189,59 @@ public class CircuitBuilder {
         }
 
         try {
-            if (new File(path).createNewFile()) System.out.println("File created: " + path);
+            if (file.createNewFile()) System.out.println("File created: " + file.toPath());
             else System.out.println("File already exists.");
 
-            FileWriter writer = new FileWriter(path);
+            FileWriter writer = new FileWriter(file);
             writer.write(str.toString());
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    List<VisualEntity> getEntityListCopy() {
+        List<VisualEntity> out = new ArrayList<>();
+        for (VisualEntity ve : entityList) {
+            VisualEntity copy = null;
+            int x = ve.X;
+            int y = ve.Y;
+            if (ve instanceof VisualWireNode) {
+                copy = new VisualWireNode(x, y);
+            } else if (ve instanceof VisualComponent) {
+                Component comp = copyComponent(((VisualComponent) ve).component);
+                int o = ve.orientation();
+                if (comp != null) {
+                    copy = new VisualComponent(comp, x, y);
+                    copy.setOrientation(o);
+                }
+            }
+            if (copy != null) {
+                out.add(copy);
+            }
+        }
+        return out;
+    }
+
+    Component copyComponent(Component comp) {
+        Component copy = null;
+        double PD = comp.PD;
+        double R = comp.resistance;
+        switch (comp.getType()) {
+            case "Battery":
+                copy = new Battery(PD, R);
+                break;
+            case "LightBulb":
+                copy = new LightBulb(R);
+                break;
+            case "Resistor":
+                copy = new Resistor(R);
+                break;
+            case "Switch":
+                copy = new Switch();
+                break;
+        }
+        return copy;
     }
 
     CircuitBuilder(ArrayList<VisualEntity> entities, Circuit c, int w, int h) {

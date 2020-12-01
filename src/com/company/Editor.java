@@ -13,10 +13,12 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
 
 public class Editor extends Application {
 
@@ -46,7 +48,7 @@ public class Editor extends Application {
         VBox menu = new VBox();
 
         // initializing the buttons
-        ArrayList<Button> buttonList = initButtons();
+        ArrayList<Button> buttonList = initButtons(stage);
 
         // initialising the menu
         menu.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
@@ -88,7 +90,6 @@ public class Editor extends Application {
                             ve.X = cX;
                             ve.Y = cY;
 
-                            ve.refresh();
                             updateVisual();
                         }
                         break;
@@ -118,6 +119,7 @@ public class Editor extends Application {
                 }
                 updateVisual();
             }
+            updateVisual();
         });
         scene.setOnKeyReleased(event -> {
             switch (event.getCode()) {
@@ -133,10 +135,10 @@ public class Editor extends Application {
                     solveCircuit();
                     break;
                 case S:
-                    save("/Users/andrei/Desktop/test.txt");
+                    save(stage);
                     break;
                 case L:
-                    load("/Users/andrei/Desktop/test.txt");
+                    load(stage);
                     break;
                 case DIGIT0:
                     placingNow = Placing.NOTHING;
@@ -157,6 +159,7 @@ public class Editor extends Application {
                     placingNow = Placing.SWITCH;
                     break;
             }
+            updateVisual();
         });
 
         // closing the application
@@ -192,11 +195,11 @@ public class Editor extends Application {
             case SWITCH:
                 return new Switch();
         }
-        System.out.println("this shouldn't have happened in getComponentFromEnum()");
+        System.out.println("this shouldn't have happened in getCurrentComponentSelection()");
         return null;
     }
 
-    VisualEntity getVisualEntity(int x, int y) {
+    static VisualEntity getVisualEntity(int x, int y) {
         for (VisualEntity ve : entityList) {
             if (ve.X == x && ve.Y == y) {
                 return ve;
@@ -213,7 +216,6 @@ public class Editor extends Application {
     void newComponent(VisualComponent vc) {
         entityList.add(vc);
         editorRoot.getChildren().add(vc);
-        vc.refresh();
         updateVisual();
     }
 
@@ -225,16 +227,21 @@ public class Editor extends Application {
     void newWireNode(VisualWireNode ve) {
         entityList.add(ve);
         editorRoot.getChildren().add(ve);
-        ve.refresh();
         updateVisual();
     }
 
-    void updateVisual() {
+    static void updateVisual() {
         ArrayList<VisualEntity> delete = new ArrayList<>();
 
+        // deleting all entities marked for deletion
         for (VisualEntity ve : entityList) {
             if (ve.toDelete) delete.add(ve);
+        }
+        editorRoot.getChildren().removeAll(delete);
+        entityList.removeAll(delete);
 
+        // updating the wireNodes
+        for (VisualEntity ve : entityList) {
             if (ve instanceof VisualWireNode) {
                 VisualEntity temp = getVisualEntity(ve.X, ve.Y - gridCellHeight);
                 ve.north = temp != null && (temp.orientation() == 0 || temp.orientation() == 2 || temp.orientation() == -1);
@@ -247,8 +254,6 @@ public class Editor extends Application {
             }
             ve.refresh();
         }
-        editorRoot.getChildren().removeAll(delete);
-        entityList.removeAll(delete);
     }
 
     void drawGrid(GraphicsContext gc) {
@@ -270,11 +275,10 @@ public class Editor extends Application {
         }
     }
 
-    ArrayList<Button> initButtons() {
+    ArrayList<Button> initButtons(Stage stage) {
         ArrayList<Button> list = new ArrayList<>();
-//        final int width  = 100;
-//        final int height = 100;
 
+        // initialising placing buttons
         for (int i = 0; i < Placing.values().length; i++) {
             String str = Placing.values()[i].toString();
             Button button = new Button(str);
@@ -283,6 +287,20 @@ public class Editor extends Application {
             button.setOnAction(e -> placingNow = Placing.values()[ci]);
             list.add(button);
         }
+
+        // creating the save/load/clear buttons
+        Button saveButton = new Button("Save");
+        saveButton.setOnAction(e -> save(stage));
+        list.add(saveButton);
+
+        Button loadButton = new Button("Load");
+        loadButton.setOnAction(e -> load(stage));
+        list.add(loadButton);
+
+        Button clearButton = new Button("Clear");
+        clearButton.setOnAction(e -> clear());
+        list.add(clearButton);
+
         return list;
     }
 
@@ -295,29 +313,28 @@ public class Editor extends Application {
         circuit.solve();
     }
 
-    void save(String path) {
-        builder.saveToFile(path);
-
+    void save(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select circuit file");
+        File file = fileChooser.showOpenDialog(stage);
+        if (file == null) return;
+        builder.saveToFile(file);
     }
 
-    void load(String path) {
-        builder.buildFromFile(path);
+    void load(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select circuit file");
+        File file = fileChooser.showOpenDialog(stage);
+        if (file == null) return;
 
-        System.out.println(builder.entityList);
+        clear();
+        builder.buildFromFile(file);
 
-        ArrayList<Node> toRemove = new ArrayList<>();
-        for (int i = 0; i < editorRoot.getChildren().size(); i++) {
-            if (editorRoot.getChildren().get(i) instanceof VisualEntity) {
-                toRemove.add(editorRoot.getChildren().get(i));
-            }
-        }
-        editorRoot.getChildren().removeAll(toRemove);
+        List<VisualEntity> listCopy = builder.getEntityListCopy();
+        System.out.println(entityList);
+        entityList.clear();
 
-        for (VisualEntity ve : entityList) {
-
-            //TODO fix this
-            // should make a copy of entity list
-
+        for (VisualEntity ve : listCopy) {
             if (ve instanceof VisualComponent) {
                 newComponent((VisualComponent) ve);
             } else if (ve instanceof VisualWireNode) {
@@ -325,17 +342,23 @@ public class Editor extends Application {
             }
         }
         updateVisual();
+        System.out.println(entityList);
+    }
+
+    void clear() {
+        ArrayList<Node> toRemove = new ArrayList<>();
+
+        for (Node node : editorRoot.getChildren()) {
+            if (node instanceof VisualEntity) {
+                toRemove.add(node);
+            }
+        }
+
+        editorRoot.getChildren().removeAll(toRemove);
+        entityList.clear();
     }
 
     public static void main(String[] args) {
-        if (Arrays.asList(args).size() != 0) {
-            System.out.println("launching with args: " + Arrays.toString(args));
-            try {
-                builder.buildFromFile(args[0]);
-            } catch (Exception e) {
-                System.out.println(Arrays.toString(e.getStackTrace()));
-            }
-        }
         launch(args);
     }
 }

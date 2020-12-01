@@ -26,6 +26,7 @@ public class VisualWireNode extends VisualEntity {
                 clickedOn = true;
             } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
                 toDelete = true;
+                Editor.updateVisual();
             }
         });
     }

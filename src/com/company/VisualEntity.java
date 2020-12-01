@@ -34,15 +34,7 @@ public abstract class VisualEntity extends ImageView {
         return -1;
     }
 
-    boolean connectedWith(int direction) {
-        switch (direction) {
-            case 0: return north;
-            case 1: return east;
-            case 2: return south;
-            case 4: return west;
-        }
-        return false;
-    }
+    void setOrientation(int o) {}
 
     void refresh() {
         relocate(X, Y);

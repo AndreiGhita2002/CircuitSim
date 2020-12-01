@@ -7,7 +7,7 @@ import javafx.scene.Cursor;
 public class VisualComponent extends VisualEntity {
 
     Component component;
-    private  int orientation; // the direction in which pin1 is going
+    int orientation; // the direction in which pin1 is going
     // 0 - north
     // 1 - east
     // 2 - south
@@ -40,8 +40,10 @@ public class VisualComponent extends VisualEntity {
                 clickedOn = true;
             } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
                 rotate();
+                Editor.updateVisual();
             } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
                 toDelete = true;
+                Editor.updateVisual();
             }
         });
     }
@@ -64,6 +66,10 @@ public class VisualComponent extends VisualEntity {
     @Override
     int orientation() {
         return  orientation;
+    }
+
+    void setOrientation(int o) {
+        orientation = o;
     }
 
     @Override

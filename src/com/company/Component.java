@@ -38,7 +38,9 @@ public abstract class Component extends DefaultEdge {
     }
 
     String toSaveFormat() {
-        return getType() + ":" + name + ":" + PD + ":" + resistance;
+        double v = (int)(PD * 100.0) / 100.0;
+        double r = (int)(resistance * 100.0) / 100.0;
+        return getType() + ":" + name + ":" + v + ":" + r;
     }
 
     static Component initComponent(String type, String name, Double pd, Double res) {
