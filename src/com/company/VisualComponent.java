@@ -27,25 +27,72 @@ public class VisualComponent extends VisualEntity {
 
         setOnMouseEntered((EventHandler<Event>) event -> {
             getScene().setCursor(Cursor.HAND); //Change cursor to hand
+            if (this.X >= Editor.W - Editor.gridCellWidth) {
+                // if it is in the right most column; displayed to the left
+                Editor.infoLabel.relocate(this.X - Editor.gridCellWidth, this.Y);
+            } else if (this.X <= Editor.gridCellWidth) {
+                // if it is in the left most column; displayed to the right
+                Editor.infoLabel.relocate(this.X + Editor.gridCellWidth, this.Y);
+            } else if (this.Y >= Editor.H - Editor.gridCellHeight) {
+                // if it is in the bottom row; displayed above
+                Editor.infoLabel.relocate(this.X, this.Y - Editor.gridCellHeight);
+            } else {
+                // anywhere else; displayed below
+                Editor.infoLabel.relocate(this.X, this.Y + Editor.gridCellHeight);
+            }
             Editor.infoLabel.setText(component.toLongString());
+            Editor.infoLabel.toFront();
         });
 
-        setOnMouseExited((EventHandler<Event>) event -> {
+        setOnMouseExited(event -> {
             getScene().setCursor(Cursor.DEFAULT); //Change cursor to pointer
             Editor.infoLabel.setText("");
         });
 
-        setOnMouseClicked((EventHandler<Event>) event -> {
-            if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
-                clickedOn = true;
-            } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
-                rotate();
-                Editor.updateVisual();
-            } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
-                toDelete = true;
-                Editor.updateVisual();
+        // adding special behaviour for Switch components
+        if (component instanceof Switch) {
+            setOnMouseClicked(event -> {
+                if (event.isSecondaryButtonDown()) { //TODO make this work when right clicked
+                    ((Switch) component).closed = !((Switch) component).closed;
+                    System.out.println(this.toString() + " has been right pressed");
+                    Editor.updateVisual();
+                } else {
+                    if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+                        clickedOn = true;
+                    } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
+                        rotate();
+                        Editor.updateVisual();
+                    } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
+                        toDelete = true;
+                        Editor.updateVisual();
+                    }
+                }
+            });
+        } else { // default clicking behaviour
+            setOnMouseClicked((EventHandler<Event>) event -> {
+                if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+                    clickedOn = true;
+                } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
+                    rotate();
+                    Editor.updateVisual();
+                } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
+                    toDelete = true;
+                    Editor.updateVisual();
+                }
+            });
+        }
+    }
+
+    void updateImage() {
+        if (component instanceof Switch) {
+            String imageName;
+            if (((Switch) this.component).closed) {
+                imageName = "Switch1.png";
+            } else {
+                imageName = "Switch0.png";
             }
-        });
+            setImage(imageName);
+        }
     }
 
     @Override

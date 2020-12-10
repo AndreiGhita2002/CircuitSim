@@ -42,7 +42,7 @@ public class CircuitBuilder {
         for (int i = 0; i < wireNodesList.size(); i++) {
             if (!wireNodesList.get(i).highlighted) {
                 WireNode newNode = new WireNode();
-                recursionStep(wireNodesList, newNode, wireNodesList.get(i));
+                connectWiresInNode(wireNodesList, newNode, wireNodesList.get(i));
                 circuit.addWireNode(newNode);
             }
         }
@@ -87,16 +87,17 @@ public class CircuitBuilder {
                 }
             }
 
-            // adding the edge in the graph
-            if (component != null) {
+            // adding the edge in the graph, unless it's null or an open (off) Switch
+            if (component != null || (component instanceof Switch && ((Switch) component).closed)) {
                 circuit.graph.addEdge(source, target, component);
                 //TODO fix this
                 // (says it doesn't allow loops)
+                // also make it support switches
             }
         }
     }
 
-    void recursionStep(ArrayList<VisualWireNode> wiresLeft, WireNode newNode, VisualWireNode vw) {
+    void connectWiresInNode(ArrayList<VisualWireNode> wiresLeft, WireNode newNode, VisualWireNode vw) {
         if (vw.highlighted) return;
         vw.highlight();
 
@@ -111,7 +112,7 @@ public class CircuitBuilder {
             }
 
             if (ve instanceof VisualWireNode && wiresLeft.contains(ve)) {
-                recursionStep(wiresLeft, newNode, (VisualWireNode) ve);
+                connectWiresInNode(wiresLeft, newNode, (VisualWireNode) ve);
             } else if (ve instanceof VisualComponent) {
                 if (ve.orientation() == (2 + i) % 4) {
                     connections.add("1 " + newNode.ID + " " + ((VisualComponent) ve).component.name);
@@ -238,7 +239,7 @@ public class CircuitBuilder {
                 copy = new Resistor(R);
                 break;
             case "Switch":
-                copy = new Switch();
+                copy = new Switch(true);
                 break;
         }
         return copy;

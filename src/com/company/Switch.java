@@ -2,7 +2,7 @@ package com.company;
 
 public class Switch extends Component {
 
-    boolean closed = false;
+    boolean closed;
     //TODO add support for switches in the rest of the program
 
     @Override
@@ -10,8 +10,9 @@ public class Switch extends Component {
         return "Switch";
     }
 
-    Switch() {
+    Switch(boolean closed) {
         super();
         PD = 0.0;
+        this.closed = closed;
     }
 }

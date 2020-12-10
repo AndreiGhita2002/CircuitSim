@@ -56,7 +56,7 @@ public abstract class Component extends DefaultEdge {
                 comp = new Resistor(res);
                 break;
             case "switch":
-                comp = new Switch();
+                comp = new Switch(true);
                 break;
         }
         if (comp != null) comp.name = name;

@@ -28,7 +28,7 @@ public abstract class VisualEntity extends ImageView {
 
     void rotate() {}
 
-    String toSaveFormat() {return null;}
+    String toSaveFormat() {return null;} //TODO make the coordinates it outputs be grid coords, not point coords
 
     int orientation() {
         return -1;

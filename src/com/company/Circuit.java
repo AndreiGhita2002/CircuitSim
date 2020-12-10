@@ -6,6 +6,7 @@ import org.jgrapht.graph.Multigraph;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Circuit {
 
@@ -80,8 +81,7 @@ public class Circuit {
                 }
             }
         }
-        //TODO remove possible identical components in out
-        return out;
+        return out.stream().distinct().collect(Collectors.toList());
     }
 
     void resetCurrents() {

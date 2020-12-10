@@ -1,6 +1,8 @@
 package com.company;
 
 import javafx.application.Application;
+import javafx.geometry.Orientation;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -9,9 +11,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -22,9 +22,9 @@ import java.util.List;
 
 public class Editor extends Application {
 
-    static final int W = 1000;
-    static final int H = 1000;
-    static final int gridCellNumber = 10;
+    static final int W = 800;
+    static final int H = 800;
+    static final int gridCellNumber = 8;
     static final int gridCellWidth  = W / gridCellNumber;
     static final int gridCellHeight = H / gridCellNumber;
 
@@ -42,30 +42,31 @@ public class Editor extends Application {
     @Override
     public void start(Stage stage) {
         SplitPane splitPane = new SplitPane();
-        Scene scene = new Scene(splitPane, W + 200, H);
+        Scene scene = new Scene(splitPane, W, H + 50);
         Canvas editorCanvas = new Canvas(W, H);
-        GraphicsContext editorGC = editorCanvas.getGraphicsContext2D();
-        VBox menu = new VBox();
+        HBox menu = new HBox();
 
         // initializing the buttons
         ArrayList<Button> buttonList = initButtons(stage);
 
         // initialising the menu
-        menu.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-
+        splitPane.setOrientation(Orientation.VERTICAL);
+        menu.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        infoLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        infoLabel.setBorder(new Border(new BorderStroke(Color.WHEAT, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
         infoLabel.setLayoutX(500);
         infoLabel.setLayoutY(500);
 
         // adding all the elements and making the stage visible
         splitPane.getItems().addAll(editorRoot, menu);
         editorRoot.getChildren().add(editorCanvas);
+        editorRoot.getChildren().add(infoLabel);
         menu.getChildren().addAll(buttonList);
-        menu.getChildren().add(infoLabel);
         stage.setTitle("CircuitSim");
         stage.setScene(scene);
         stage.show();
 
-        drawGrid(editorGC);
+        drawGrid(editorCanvas.getGraphicsContext2D());
         builder.updateCircuit();
 
         editorCanvas.setOnMouseReleased(event -> {
@@ -89,8 +90,6 @@ public class Editor extends Application {
                         if (validPosition) {
                             ve.X = cX;
                             ve.Y = cY;
-
-                            updateVisual();
                         }
                         break;
                     }
@@ -117,7 +116,6 @@ public class Editor extends Application {
                         newComponent(comp, cX, cY);
                     }
                 }
-                updateVisual();
             }
             updateVisual();
         });
@@ -129,7 +127,6 @@ public class Editor extends Application {
                             ve.rotate();
                         }
                     }
-                    updateVisual();
                     break;
                 case X:
                     solveCircuit();
@@ -161,6 +158,8 @@ public class Editor extends Application {
             }
             updateVisual();
         });
+        splitPane.setOnMouseEntered(event -> scene.setCursor(Cursor.DEFAULT));
+        splitPane.setOnMouseExited(event -> scene.setCursor(Cursor.DEFAULT));
 
         // closing the application
         stage.setOnCloseRequest(event -> {
@@ -184,6 +183,8 @@ public class Editor extends Application {
     Component getCurrentComponentSelection() {
         switch (placingNow) {
             case NOTHING:
+            case DELETE:
+            case ROTATING:
             case WIRE:
                 return null;
             case BATTERY:
@@ -193,7 +194,7 @@ public class Editor extends Application {
             case RESISTOR:
                 return new Resistor(4.0);
             case SWITCH:
-                return new Switch();
+                return new Switch(true);
         }
         System.out.println("this shouldn't have happened in getCurrentComponentSelection()");
         return null;
@@ -221,7 +222,6 @@ public class Editor extends Application {
 
     void newWireNode(int x, int y) {
         newWireNode(new VisualWireNode(x, y));
-
     }
 
     void newWireNode(VisualWireNode ve) {
@@ -240,8 +240,8 @@ public class Editor extends Application {
         editorRoot.getChildren().removeAll(delete);
         entityList.removeAll(delete);
 
-        // updating the wireNodes
         for (VisualEntity ve : entityList) {
+            // updating the wireNodes
             if (ve instanceof VisualWireNode) {
                 VisualEntity temp = getVisualEntity(ve.X, ve.Y - gridCellHeight);
                 ve.north = temp != null && (temp.orientation() == 0 || temp.orientation() == 2 || temp.orientation() == -1);
@@ -252,17 +252,23 @@ public class Editor extends Application {
                 temp = getVisualEntity(ve.X - gridCellWidth, ve.Y);
                 ve.west  = temp != null && (temp.orientation() == 3 || temp.orientation() == 1 || temp.orientation() == -1);
             }
+
+            // updating components
+            if (ve instanceof VisualComponent) {
+                ((VisualComponent) ve).updateImage();
+            }
             ve.refresh();
         }
     }
 
     void drawGrid(GraphicsContext gc) {
         // drawing the background
-        gc.setFill(Color.LIGHTBLUE);
+        gc.setFill(Color.WHITE);
         gc.fillRect(0, 0, W, H);
 
         // drawing the grid
-        gc.setStroke(Color.LIGHTGOLDENRODYELLOW);
+        gc.setStroke(Color.LIGHTGRAY);
+        gc.setLineWidth(2);
 
         // for vertical lines
         for (int i = 0; i < W; i += gridCellWidth) {
@@ -288,7 +294,7 @@ public class Editor extends Application {
             list.add(button);
         }
 
-        // creating the save/load/clear buttons
+        // creating the save/load/clear/solve buttons
         Button saveButton = new Button("Save");
         saveButton.setOnAction(e -> save(stage));
         list.add(saveButton);
@@ -300,6 +306,10 @@ public class Editor extends Application {
         Button clearButton = new Button("Clear");
         clearButton.setOnAction(e -> clear());
         list.add(clearButton);
+
+        Button solveButton = new Button("Solve");
+        clearButton.setOnAction(e -> solveCircuit());
+        list.add(solveButton);
 
         return list;
     }
@@ -316,7 +326,8 @@ public class Editor extends Application {
     void save(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select circuit file");
-        File file = fileChooser.showOpenDialog(stage);
+        fileChooser.setInitialFileName("circuit.txt");
+        File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         builder.saveToFile(file);
     }
