@@ -3,6 +3,7 @@ package com.company;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.input.MouseButton;
 
 public class VisualComponent extends VisualEntity {
 
@@ -52,12 +53,11 @@ public class VisualComponent extends VisualEntity {
         // adding special behaviour for Switch components
         if (component instanceof Switch) {
             setOnMouseClicked(event -> {
-                if (event.isSecondaryButtonDown()) { //TODO make this work when right clicked
-                    ((Switch) component).closed = !((Switch) component).closed;
-                    System.out.println(this.toString() + " has been right pressed");
+                if (event.getButton().equals(MouseButton.SECONDARY)) {
+                    component.closed = !component.closed;
                     Editor.updateVisual();
                 } else {
-                    if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+                    if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                         clickedOn = true;
                     } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
                         rotate();
@@ -70,7 +70,7 @@ public class VisualComponent extends VisualEntity {
             });
         } else { // default clicking behaviour
             setOnMouseClicked((EventHandler<Event>) event -> {
-                if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+                if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                     clickedOn = true;
                 } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
                     rotate();
@@ -86,7 +86,7 @@ public class VisualComponent extends VisualEntity {
     void updateImage() {
         if (component instanceof Switch) {
             String imageName;
-            if (((Switch) this.component).closed) {
+            if (this.component.closed) {
                 imageName = "Switch1.png";
             } else {
                 imageName = "Switch0.png";
@@ -107,7 +107,7 @@ public class VisualComponent extends VisualEntity {
 
     @Override
     String toSaveFormat() {
-        return X + " " + Y + " " + orientation + " " + component.toSaveFormat();
+        return X / Editor.gridCellWidth + " " + Y / Editor.gridCellHeight + " " + orientation + " " + component.toSaveFormat();
     }
 
     @Override

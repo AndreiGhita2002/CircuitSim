@@ -33,9 +33,9 @@ public class Editor extends Application {
     public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
-        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, NOTHING
+        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, MOVE
     }
-    static Placing placingNow = Placing.NOTHING;
+    static Placing placingNow = Placing.MOVE;
     static Label infoLabel = new Label("");
     static Group editorRoot = new Group();
 
@@ -70,7 +70,7 @@ public class Editor extends Application {
         builder.updateCircuit();
 
         editorCanvas.setOnMouseReleased(event -> {
-            if (placingNow.equals(Placing.NOTHING)) {
+            if (placingNow.equals(Placing.MOVE)) {
                 for (VisualEntity ve : entityList) {
                     if (ve.clickedOn) {
                         ve.clickedOn = false;
@@ -138,7 +138,7 @@ public class Editor extends Application {
                     load(stage);
                     break;
                 case DIGIT0:
-                    placingNow = Placing.NOTHING;
+                    placingNow = Placing.MOVE;
                     break;
                 case DIGIT1:
                     placingNow = Placing.WIRE;
@@ -182,7 +182,7 @@ public class Editor extends Application {
 
     Component getCurrentComponentSelection() {
         switch (placingNow) {
-            case NOTHING:
+            case MOVE:
             case DELETE:
             case ROTATING:
             case WIRE:
@@ -196,7 +196,7 @@ public class Editor extends Application {
             case SWITCH:
                 return new Switch(true);
         }
-        System.out.println("this shouldn't have happened in getCurrentComponentSelection()");
+        System.out.println("this shouldn't happened in getCurrentComponentSelection()");
         return null;
     }
 
@@ -222,6 +222,7 @@ public class Editor extends Application {
 
     void newWireNode(int x, int y) {
         newWireNode(new VisualWireNode(x, y));
+
     }
 
     void newWireNode(VisualWireNode ve) {
@@ -287,6 +288,12 @@ public class Editor extends Application {
         // initialising placing buttons
         for (int i = 0; i < Placing.values().length; i++) {
             String str = Placing.values()[i].toString();
+
+            // turning the string to lowercase, then capitalising the first char
+            str = str.toLowerCase();
+            String firstChar = "" + str.charAt(0);
+            str = str.replaceFirst(firstChar, firstChar.toUpperCase());
+
             Button button = new Button(str);
 
             int ci = i;

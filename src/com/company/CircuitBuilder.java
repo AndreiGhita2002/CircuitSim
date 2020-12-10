@@ -88,11 +88,8 @@ public class CircuitBuilder {
             }
 
             // adding the edge in the graph, unless it's null or an open (off) Switch
-            if (component != null || (component instanceof Switch && ((Switch) component).closed)) {
+            if (component != null && component.closed) {
                 circuit.graph.addEdge(source, target, component);
-                //TODO fix this
-                // (says it doesn't allow loops)
-                // also make it support switches
             }
         }
     }
@@ -144,8 +141,8 @@ public class CircuitBuilder {
             // line represents a component
             if (line.charAt(0) == '+') {
                 String[] words = line.split(" ");
-                int x = Integer.parseInt(words[1]);
-                int y = Integer.parseInt(words[2]);
+                int x = Integer.parseInt(words[1]) * Editor.gridCellWidth;
+                int y = Integer.parseInt(words[2]) * Editor.gridCellHeight;
                 int ori = Integer.parseInt(words[3]);
 
                 String[] compWords = words[4].split(":");
@@ -159,7 +156,8 @@ public class CircuitBuilder {
             if (line.charAt(0) == '!') {
                 String[] words = line.substring(2).split(" ");
                 for (int j = 0; j < words.length / 2; j++) {
-                    entityList.add(new VisualWireNode(Integer.parseInt(words[j * 2]), Integer.parseInt(words[j * 2 + 1])));
+                    entityList.add(new VisualWireNode(Integer.parseInt(words[j * 2]) * Editor.gridCellWidth,
+                            Integer.parseInt(words[j * 2 + 1]) * Editor.gridCellHeight));
                 }
             }
         }
@@ -183,9 +181,9 @@ public class CircuitBuilder {
 
         str.append("Wire nodes:\n! ");
         for (int i = 0; i < wirePositions.size(); i+=2) {
-            str.append(wirePositions.get(i));
+            str.append(wirePositions.get(i) / Editor.gridCellWidth);
             str.append(" ");
-            str.append(wirePositions.get(i + 1));
+            str.append(wirePositions.get(i + 1) / Editor.gridCellHeight);
             str.append(" ");
         }
 

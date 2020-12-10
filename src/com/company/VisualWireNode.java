@@ -22,7 +22,7 @@ public class VisualWireNode extends VisualEntity {
         });
 
         setOnMouseClicked((EventHandler<Event>) event -> {
-            if (Editor.placingNow.equals(Editor.Placing.NOTHING)) {
+            if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                 clickedOn = true;
             } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
                 toDelete = true;

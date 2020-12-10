@@ -10,6 +10,8 @@ public abstract class Component extends DefaultEdge {
     String name;
     static int nextID = 0;
 
+    boolean closed = true;
+
     abstract String getType();
 
     @Override
@@ -28,11 +30,16 @@ public abstract class Component extends DefaultEdge {
     }
 
     String toLongString() {
+
+        double v = (int)(PD * 100.0) / 100.0;
+        double r = (int)(resistance * 100.0) / 100.0;
+        double i = (int)(current * 100.0) / 100.0;
+
         String out = getType() + " " + name + "\n";
-        out += "Voltage: " + PD + " V\n";
-        out += "Current: " + current + " A\n";
+        out += "Voltage: " + v + " V\n";
+        out += "Current: " + i + " A\n";
         if (resistance > 0) {
-            out += "Resistance: " + resistance + " Ω\n";
+            out += "Resistance: " + r + " Ω\n";
         }
         return out;
     }
