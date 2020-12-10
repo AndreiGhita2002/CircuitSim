@@ -308,7 +308,7 @@ public class Editor extends Application {
         list.add(clearButton);
 
         Button solveButton = new Button("Solve");
-        clearButton.setOnAction(e -> solveCircuit());
+        solveButton.setOnAction(e -> solveCircuit());
         list.add(solveButton);
 
         return list;
