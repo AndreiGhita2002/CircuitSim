@@ -24,6 +24,10 @@ public abstract class Component extends DefaultEdge {
         return super.getTarget();
     }
 
+    Double getBrightness() {
+        return 0.0;
+    }
+
     void calculateVoltage() {
         // V = I * R
         if (!getType().equals("Battery"))  PD = current * resistance;
@@ -32,14 +36,18 @@ public abstract class Component extends DefaultEdge {
     String toLongString() {
 
         double v = (int)(PD * 100.0) / 100.0;
-        double r = (int)(resistance * 100.0) / 100.0;
         double i = (int)(current * 100.0) / 100.0;
 
         String out = getType() + " " + name + "\n";
         out += "Voltage: " + v + " V\n";
         out += "Current: " + i + " A\n";
         if (resistance > 0) {
+            double r = (int)(resistance * 100.0) / 100.0;
             out += "Resistance: " + r + " Ω\n";
+        }
+        if (getBrightness() != 0) {
+            double b = (int)(getBrightness() * 100.0) / 100.0;
+            out += "Brightness: " + b;
         }
         return out;
     }

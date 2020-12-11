@@ -3,6 +3,7 @@ package com.company;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Cursor;
+import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseButton;
 
 public class VisualComponent extends VisualEntity {
@@ -93,6 +94,9 @@ public class VisualComponent extends VisualEntity {
             }
             setImage(imageName);
         }
+        Glow glow = new Glow();
+        glow.setLevel(component.getBrightness());
+        this.setEffect(glow);
     }
 
     @Override

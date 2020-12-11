@@ -67,8 +67,10 @@ public class Circuit {
         }
 
         // telling all the components to calculate their voltages
-        for (Component comp : graph.edgeSet()) {
-            comp.calculateVoltage();
+        for (VisualEntity ve : Editor.entityList) {
+            if (ve instanceof VisualComponent) {
+                ((VisualComponent) ve ).component.calculateVoltage();
+            }
         }
     }
 
@@ -85,8 +87,10 @@ public class Circuit {
     }
 
     void resetCurrents() {
-        for (Component component : graph.edgeSet()) {
-            component.current = 0.0;
+        for (VisualEntity ve : Editor.entityList) {
+            if (ve instanceof VisualComponent) {
+                ((VisualComponent) ve ).component.current = 0.0;
+            }
         }
     }
 

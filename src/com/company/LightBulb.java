@@ -2,9 +2,12 @@ package com.company;
 
 public class LightBulb extends Component {
 
+    @Override
     Double getBrightness() {
-        //TODO getBrightness based on the current flowing through
-        return 1.0;
+        if (current != 0) {
+            return 1.0;
+        }
+        return 0.0;
     }
 
     @Override

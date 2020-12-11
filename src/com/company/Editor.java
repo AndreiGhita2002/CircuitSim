@@ -179,11 +179,6 @@ public class Editor extends Application {
 
     Component getCurrentComponentSelection() {
         switch (placingNow) {
-            case MOVE:
-            case DELETE:
-            case ROTATING:
-            case WIRE:
-                return null;
             case BATTERY:
                 return new Battery(12.0, 1.0);
             case LIGHT:
@@ -193,7 +188,6 @@ public class Editor extends Application {
             case SWITCH:
                 return new Switch(true);
         }
-        System.out.println("this shouldn't happened in getCurrentComponentSelection()");
         return null;
     }
 
@@ -249,11 +243,6 @@ public class Editor extends Application {
                 ve.south = temp != null && (temp.orientation() == 2 || temp.orientation() == 0 || temp.orientation() == -1);
                 temp = getVisualEntity(ve.X - gridCellWidth, ve.Y);
                 ve.west  = temp != null && (temp.orientation() == 3 || temp.orientation() == 1 || temp.orientation() == -1);
-            }
-
-            // updating components
-            if (ve instanceof VisualComponent) {
-                ((VisualComponent) ve).updateImage();
             }
             ve.refresh();
         }
@@ -320,11 +309,9 @@ public class Editor extends Application {
 
     void solveCircuit() {
         System.out.println("Solving the circuit.....");
-        updateVisual();
         builder.updateCircuit();
-        System.out.println(circuit);
-        System.out.println();
         circuit.solve();
+        updateVisual();
     }
 
     void save(Stage stage) {
@@ -350,7 +337,6 @@ public class Editor extends Application {
         builder.buildFromFile(file);
 
         List<VisualEntity> listCopy = builder.getEntityListCopy();
-        System.out.println(entityList);
         entityList.clear();
 
         for (VisualEntity ve : listCopy) {

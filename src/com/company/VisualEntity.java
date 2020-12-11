@@ -37,6 +37,9 @@ public abstract class VisualEntity extends ImageView {
     void setOrientation(int o) {}
 
     void refresh() {
+        if (this instanceof VisualComponent) {
+            ((VisualComponent) this).updateImage();
+        }
         relocate(X, Y);
     }
 }
