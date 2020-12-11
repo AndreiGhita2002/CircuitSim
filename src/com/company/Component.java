@@ -45,10 +45,13 @@ public abstract class Component extends DefaultEdge {
             double r = (int)(resistance * 100.0) / 100.0;
             out += "Resistance: " + r + " Ω\n";
         }
+        //DEBUG:
+        /*
         if (getBrightness() != 0) {
             double b = (int)(getBrightness() * 100.0) / 100.0;
             out += "Brightness: " + b;
         }
+        */
         return out;
     }
 

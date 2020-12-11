@@ -9,7 +9,6 @@ public abstract class VisualEntity extends ImageView {
     Integer Y;
     boolean clickedOn = false;
     boolean toDelete = false;
-    static int imageSize = 100;
 
     // if it's connected in that direction
     boolean north = false;
@@ -22,11 +21,11 @@ public abstract class VisualEntity extends ImageView {
 
     protected void setImage(String imageName) {
         this.setImage(new Image(folderURL + imageName));
-        this.setFitWidth(imageSize);
-        this.setFitHeight(imageSize);
+        this.setFitWidth(Editor.gridCellWidth);
+        this.setFitHeight(Editor.gridCellHeight);
     }
 
-    void rotate() {}
+    void rotateOnce() {}
 
     String toSaveFormat() {return null;}
 
@@ -37,9 +36,6 @@ public abstract class VisualEntity extends ImageView {
     void setOrientation(int o) {}
 
     void refresh() {
-        if (this instanceof VisualComponent) {
-            ((VisualComponent) this).updateImage();
-        }
         relocate(X, Y);
     }
 }

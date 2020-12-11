@@ -24,7 +24,7 @@ public class Editor extends Application {
 
     static final int W = 800;
     static final int H = 800;
-    static final int gridCellNumber = 8;
+    static final int gridCellNumber = 12;
     static final int gridCellWidth  = W / gridCellNumber;
     static final int gridCellHeight = H / gridCellNumber;
     static final String examplesPath = "./resources/examples/";
@@ -125,7 +125,7 @@ public class Editor extends Application {
                 case R:
                     for (VisualEntity ve : entityList) {
                         if (ve.clickedOn && ve instanceof VisualComponent) {
-                            ve.rotate();
+                            ve.rotateOnce();
                         }
                     }
                     break;
@@ -320,12 +320,14 @@ public class Editor extends Application {
         fileChooser.setInitialFileName("untitled.circuit");
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
+        solveCircuit();
         builder.saveToFile(file);
     }
 
     void load(Stage stage) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select circuit file");
+        fileChooser.setInitialDirectory(new File(examplesPath));
         File file = fileChooser.showOpenDialog(stage);
         load(file);
     }

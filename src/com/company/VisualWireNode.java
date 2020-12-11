@@ -1,7 +1,5 @@
 package com.company;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 
 public class VisualWireNode extends VisualEntity {
@@ -13,15 +11,15 @@ public class VisualWireNode extends VisualEntity {
         this.Y = y;
         refresh();
 
-        setOnMouseEntered((EventHandler<Event>) event -> {
+        setOnMouseEntered(event -> {
             getScene().setCursor(Cursor.HAND); //Change cursor to hand
         });
 
-        setOnMouseExited((EventHandler<Event>) event -> {
+        setOnMouseExited(event -> {
             getScene().setCursor(Cursor.DEFAULT); //Change cursor to pointer
         });
 
-        setOnMouseClicked((EventHandler<Event>) event -> {
+        setOnMouseClicked(event -> {
             if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                 clickedOn = true;
             } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {

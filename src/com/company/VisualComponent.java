@@ -25,9 +25,8 @@ public class VisualComponent extends VisualEntity {
         this.Y = y;
         this.orientation = orientation;
         setImage(component.getType() + ".png");
-        refresh();
 
-        setOnMouseEntered((EventHandler<Event>) event -> {
+        setOnMouseEntered(event -> {
             getScene().setCursor(Cursor.HAND); //Change cursor to hand
             if (this.X >= Editor.W - Editor.gridCellWidth) {
                 // if it is in the right most column; displayed to the left
@@ -45,7 +44,6 @@ public class VisualComponent extends VisualEntity {
             Editor.infoLabel.setText(component.toLongString());
             Editor.infoLabel.toFront();
         });
-
         setOnMouseExited(event -> {
             getScene().setCursor(Cursor.DEFAULT); //Change cursor to pointer
             Editor.infoLabel.setText("");
@@ -61,7 +59,7 @@ public class VisualComponent extends VisualEntity {
                     if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                         clickedOn = true;
                     } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
-                        rotate();
+                        rotateOnce();
                         Editor.updateVisual();
                     } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
                         toDelete = true;
@@ -74,7 +72,7 @@ public class VisualComponent extends VisualEntity {
                 if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
                     clickedOn = true;
                 } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
-                    rotate();
+                    rotateOnce();
                     Editor.updateVisual();
                 } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
                     toDelete = true;
@@ -82,9 +80,12 @@ public class VisualComponent extends VisualEntity {
                 }
             });
         }
+        refresh();
     }
 
-    void updateImage() {
+    @Override
+    void refresh() {
+        // special behaviour for Switches
         if (component instanceof Switch) {
             String imageName;
             if (this.component.closed) {
@@ -94,13 +95,20 @@ public class VisualComponent extends VisualEntity {
             }
             setImage(imageName);
         }
+
+        // rotating the VisualComponent until it's the correct way
+        this.rotateProperty().setValue(90 * orientation);
+
+        // setting the glow
         Glow glow = new Glow();
         glow.setLevel(component.getBrightness());
         this.setEffect(glow);
+
+        super.refresh();
     }
 
     @Override
-    void rotate() {
+    void rotateOnce() {
         this.rotateProperty().setValue(this.rotateProperty().get() + 90);
         orientation++;
         if (orientation > 3) {
