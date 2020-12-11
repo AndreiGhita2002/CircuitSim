@@ -27,6 +27,7 @@ public class Editor extends Application {
     static final int gridCellNumber = 8;
     static final int gridCellWidth  = W / gridCellNumber;
     static final int gridCellHeight = H / gridCellNumber;
+    static final String examplesPath = "./resources/examples/";
 
     public static Circuit circuit = new Circuit();
     public static ArrayList<VisualEntity> entityList = new ArrayList<>();
@@ -170,14 +171,10 @@ public class Editor extends Application {
             }
         });
 
-        // Testing things:
-        newComponent(new Battery(12.0), 200, 200);
-        newComponent(new LightBulb(5.0), 400, 300);
-        newWireNode(400, 200);
-        newWireNode(500, 300);
-        newWireNode(300, 300);
-        newWireNode(200, 300);
-        newWireNode(200, 500);
+        // loading the starting circuit
+        load(new File(examplesPath + "start_example.circuit"));
+        //TODO add an option to choose from the other examples
+        // maybe like in the menu bar
     }
 
     Component getCurrentComponentSelection() {
@@ -332,8 +329,8 @@ public class Editor extends Application {
 
     void save(Stage stage) {
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select circuit file");
-        fileChooser.setInitialFileName("circuit.txt");
+        fileChooser.setTitle("Choose save location");
+        fileChooser.setInitialFileName("untitled.circuit");
         File file = fileChooser.showSaveDialog(stage);
         if (file == null) return;
         builder.saveToFile(file);
@@ -343,6 +340,10 @@ public class Editor extends Application {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select circuit file");
         File file = fileChooser.showOpenDialog(stage);
+        load(file);
+    }
+
+    void load(File file) {
         if (file == null) return;
 
         clear();
@@ -360,7 +361,6 @@ public class Editor extends Application {
             }
         }
         updateVisual();
-        System.out.println(entityList);
     }
 
     void clear() {
