@@ -1,5 +1,8 @@
 package com.company;
 
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,7 +27,7 @@ public class CircuitBuilder {
         return null;
     }
 
-    void updateCircuit() {
+    boolean updateCircuit() {
         // resetting the circuit
         circuit.reset();
         connections.clear();
@@ -87,11 +90,21 @@ public class CircuitBuilder {
                 }
             }
 
-            // adding the edge in the graph, unless it's null or an open (off) Switch
-            if (component != null && component.closed) {
-                circuit.graph.addEdge(source, target, component);
+            try {
+                // adding the edge in the graph, unless it's null or an open (off) Switch
+                if (component != null && component.closed) {
+                    circuit.graph.addEdge(source, target, component);
+                }
+            } catch (Exception e) {
+                Editor.resultLabel.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
+                Editor.resultLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.HOTPINK, null, null)));
+                Editor.resultLabel.setText("Something went wrong;\nPlease check your circuit");
+                Editor.resultLabel.setVisible(true);
+                System.out.println("Shorted");
+                return false;
             }
         }
+        return true;
     }
 
     void connectWiresInNode(ArrayList<VisualWireNode> wiresLeft, WireNode newNode, VisualWireNode vw) {
@@ -230,8 +243,8 @@ public class CircuitBuilder {
             case "Battery":
                 copy = new Battery(PD, R);
                 break;
-            case "LightBulb":
-                copy = new LightBulb(R);
+            case "Lamp":
+                copy = new Lamp(R);
                 break;
             case "Resistor":
                 copy = new Resistor(R);

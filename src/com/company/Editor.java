@@ -11,6 +11,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.SplitPane;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -34,35 +36,55 @@ public class Editor extends Application {
     public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
-        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, MOVE
+        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, MOVE, MODIFY
     }
     static Placing placingNow = Placing.MOVE;
     static Label infoLabel = new Label("");
+    static TextField resistanceField = new TextField("");
+    static TextField potentialField = new TextField("");
+    static Label resistanceLabel = new Label("Resistance:  in Ω");
+    static Label potentialLabel  = new Label("EMF          in V");
+    static Label resultLabel = new Label();
     static Group editorRoot = new Group();
+    static Stage stg;
 
     @Override
     public void start(Stage stage) {
+        stg = stage;
         SplitPane splitPane = new SplitPane();
-        Scene scene = new Scene(splitPane, W, H + 50);
+        Scene scene = new Scene(splitPane, W + 100, H);
         Canvas editorCanvas = new Canvas(W, H);
-        HBox menu = new HBox();
+        VBox menu = new VBox();
 
         // initializing the buttons
-        ArrayList<Button> buttonList = initButtons(stage);
+        ArrayList<Button> buttonList = initButtons();
 
         // initialising the menu
-        splitPane.setOrientation(Orientation.VERTICAL);
+        splitPane.setOrientation(Orientation.HORIZONTAL);
         menu.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         infoLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
         infoLabel.setBorder(new Border(new BorderStroke(Color.WHEAT, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
         infoLabel.setLayoutX(500);
         infoLabel.setLayoutY(500);
+        resistanceField.setVisible(false);
+        potentialField.setVisible(false);
+        resistanceLabel.setVisible(false);
+        potentialLabel.setVisible(false);
+        resultLabel.setLayoutX(100);
+        resultLabel.setLayoutY(750);
+        resultLabel.setVisible(false);
 
         // adding all the elements and making the stage visible
         splitPane.getItems().addAll(editorRoot, menu);
         editorRoot.getChildren().add(editorCanvas);
         editorRoot.getChildren().add(infoLabel);
+        editorRoot.getChildren().add(resultLabel);
         menu.getChildren().addAll(buttonList);
+        menu.getChildren().add(new Label("\n\n\n"));
+        menu.getChildren().add(resistanceLabel);
+        menu.getChildren().add(resistanceField);
+        menu.getChildren().add(potentialLabel);
+        menu.getChildren().add(potentialField);
         stage.setTitle("CircuitSim");
         stage.setScene(scene);
         stage.show();
@@ -120,44 +142,18 @@ public class Editor extends Application {
             }
             updateVisual();
         });
-        scene.setOnKeyReleased(event -> {
-            switch (event.getCode()) {
-                case R:
-                    for (VisualEntity ve : entityList) {
-                        if (ve.clickedOn && ve instanceof VisualComponent) {
-                            ve.rotateOnce();
-                        }
-                    }
-                    break;
-                case X:
-                    solveCircuit();
-                    break;
-                case S:
-                    save(stage);
-                    break;
-                case L:
-                    load(stage);
-                    break;
-                case DIGIT0:
-                    placingNow = Placing.MOVE;
-                    break;
-                case DIGIT1:
-                    placingNow = Placing.WIRE;
-                    break;
-                case DIGIT2:
-                    placingNow = Placing.BATTERY;
-                    break;
-                case DIGIT3:
-                    placingNow = Placing.LIGHT;
-                    break;
-                case DIGIT4:
-                    placingNow = Placing.RESISTOR;
-                    break;
-                case DIGIT5:
-                    placingNow = Placing.SWITCH;
-                    break;
+        editorCanvas.setOnKeyReleased(event -> {
+            if (event.isControlDown()) {
+                switch (event.getCode()) {
+                    case S:
+                        save();
+                        break;
+                    case L:
+                        load();
+                        break;
+                }
+                updateVisual();
             }
-            updateVisual();
         });
         splitPane.setOnMouseEntered(event -> scene.setCursor(Cursor.DEFAULT));
         splitPane.setOnMouseExited(event -> scene.setCursor(Cursor.DEFAULT));
@@ -173,8 +169,6 @@ public class Editor extends Application {
 
         // loading the starting circuit
         load(new File(examplesPath + "start_example.circuit"));
-        //TODO add an option to choose from the other examples
-        // maybe like in the menu bar
     }
 
     Component getCurrentComponentSelection() {
@@ -182,7 +176,7 @@ public class Editor extends Application {
             case BATTERY:
                 return new Battery(12.0, 1.0);
             case LIGHT:
-                return new LightBulb(2.0);
+                return new Lamp(2.0);
             case RESISTOR:
                 return new Resistor(4.0);
             case SWITCH:
@@ -246,6 +240,44 @@ public class Editor extends Application {
             }
             ve.refresh();
         }
+
+        // hiding the text fields if not needed
+        if (!placingNow.equals(Placing.MODIFY)) {
+            resistanceField.setVisible(false);
+            potentialField.setVisible(false);
+            resistanceLabel.setVisible(false);
+            potentialLabel.setVisible(false);
+            resultLabel.setVisible(false);
+        }
+    }
+
+    static void modify(VisualComponent vc) {
+        // show the text field for resistance for all components
+        resistanceField.setText(vc.component.resistance.toString());
+        resistanceField.setVisible(true);
+        resistanceLabel.setVisible(true);
+        resistanceField.setOnKeyReleased(e -> {
+            if (e.getCode().equals(KeyCode.ENTER)) {
+                // processing the text from the text field
+                vc.component.resistance = Double.parseDouble(resistanceField.getText());
+            }
+        });
+
+        // also show the emf field only for batteries
+        if (vc.component instanceof Battery) {
+            potentialField.setText(vc.component.PD.toString());
+            potentialField.setVisible(true);
+            potentialLabel.setVisible(true);
+            potentialField.setOnKeyReleased(e -> {
+                if (e.getCode().equals(KeyCode.ENTER)) {
+                    // processing the text from the text field
+                    vc.component.PD = Double.parseDouble(potentialField.getText());
+                }
+            });
+        } else {
+            potentialField.setVisible(false);
+            potentialLabel.setVisible(false);
+        }
     }
 
     void drawGrid(GraphicsContext gc) {
@@ -268,7 +300,7 @@ public class Editor extends Application {
         }
     }
 
-    ArrayList<Button> initButtons(Stage stage) {
+    ArrayList<Button> initButtons() {
         ArrayList<Button> list = new ArrayList<>();
 
         // initialising placing buttons
@@ -289,11 +321,11 @@ public class Editor extends Application {
 
         // creating the save/load/clear/solve buttons
         Button saveButton = new Button("Save");
-        saveButton.setOnAction(e -> save(stage));
+        saveButton.setOnAction(e -> save());
         list.add(saveButton);
 
         Button loadButton = new Button("Load");
-        loadButton.setOnAction(e -> load(stage));
+        loadButton.setOnAction(e -> load());
         list.add(loadButton);
 
         Button clearButton = new Button("Clear");
@@ -309,26 +341,31 @@ public class Editor extends Application {
 
     void solveCircuit() {
         System.out.println("Solving the circuit.....");
-        builder.updateCircuit();
-        circuit.solve();
-        updateVisual();
+        if (builder.updateCircuit()) {
+            circuit.solve();
+            updateVisual();
+            Editor.resultLabel.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
+            Editor.resultLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
+            Editor.resultLabel.setText("Solved!");
+            Editor.resultLabel.setVisible(true);
+        }
     }
 
-    void save(Stage stage) {
+    void save() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choose save location");
         fileChooser.setInitialFileName("untitled.circuit");
-        File file = fileChooser.showSaveDialog(stage);
+        File file = fileChooser.showSaveDialog(stg);
         if (file == null) return;
         solveCircuit();
         builder.saveToFile(file);
     }
 
-    void load(Stage stage) {
+    void load() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select circuit file");
         fileChooser.setInitialDirectory(new File(examplesPath));
-        File file = fileChooser.showOpenDialog(stage);
+        File file = fileChooser.showOpenDialog(stg);
         load(file);
     }
 

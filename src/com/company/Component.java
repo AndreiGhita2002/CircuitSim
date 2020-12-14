@@ -34,7 +34,6 @@ public abstract class Component extends DefaultEdge {
     }
 
     String toLongString() {
-
         double v = (int)(PD * 100.0) / 100.0;
         double i = (int)(current * 100.0) / 100.0;
 
@@ -68,7 +67,7 @@ public abstract class Component extends DefaultEdge {
                 comp = new Battery(pd, res);
                 break;
             case "lightbulb":
-                comp = new LightBulb(res);
+                comp = new Lamp(res);
                 break;
             case "resistor":
                 comp = new Resistor(res);

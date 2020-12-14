@@ -1,7 +1,5 @@
 package com.company;
 
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.scene.Cursor;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseButton;
@@ -48,38 +46,35 @@ public class VisualComponent extends VisualEntity {
             getScene().setCursor(Cursor.DEFAULT); //Change cursor to pointer
             Editor.infoLabel.setText("");
         });
+        setOnMouseClicked(event -> {
+            // if it gets right clicked
 
-        // adding special behaviour for Switch components
-        if (component instanceof Switch) {
-            setOnMouseClicked(event -> {
-                if (event.getButton().equals(MouseButton.SECONDARY)) {
+            if (event.getButton().equals(MouseButton.SECONDARY)) {
+                // special behaviour for Switches:
+                if (component instanceof Switch) {
+                    // the switch gets flipped
                     component.closed = !component.closed;
                     Editor.updateVisual();
                 } else {
-                    if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
-                        clickedOn = true;
-                    } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
-                        rotateOnce();
-                        Editor.updateVisual();
-                    } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
-                        toDelete = true;
-                        Editor.updateVisual();
-                    }
+                    // for all other components, the modify menu will become visible
+                    Editor.modify(this);
                 }
-            });
-        } else { // default clicking behaviour
-            setOnMouseClicked((EventHandler<Event>) event -> {
-                if (Editor.placingNow.equals(Editor.Placing.MOVE)) {
+
+            } else switch (Editor.placingNow) {
+                // when it's left clicked
+                case MOVE:
                     clickedOn = true;
-                } else if (Editor.placingNow.equals(Editor.Placing.ROTATING)) {
+                    break;
+                case ROTATING:
                     rotateOnce();
                     Editor.updateVisual();
-                } else if (Editor.placingNow.equals(Editor.Placing.DELETE)) {
+                    break;
+                case DELETE:
                     toDelete = true;
                     Editor.updateVisual();
-                }
-            });
-        }
+                    break;
+            }
+        });
         refresh();
     }
 

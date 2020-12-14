@@ -1,7 +1,8 @@
 package com.company;
 
-public class LightBulb extends Component {
+public class Lamp extends Component {
 
+    //TODO make Lamp work properly
     @Override
     Double getBrightness() {
         if (current != 0) {
@@ -12,10 +13,10 @@ public class LightBulb extends Component {
 
     @Override
     String getType() {
-        return "LightBulb";
+        return "Lamp";
     }
 
-    LightBulb(Double resistance) {
+    Lamp(Double resistance) {
         super();
         this.resistance = resistance;
     }
