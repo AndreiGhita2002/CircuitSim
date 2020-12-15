@@ -36,7 +36,7 @@ public class Editor extends Application {
     public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
     enum Placing {
-        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATING, DELETE, MOVE, MODIFY
+        WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATE, DELETE, MOVE, MODIFY
     }
     static Placing placingNow = Placing.MOVE;
     static Label infoLabel = new Label("");
@@ -111,6 +111,9 @@ public class Editor extends Application {
                             }
                         }
                         if (validPosition) {
+                            if (ve instanceof VisualComponent) {
+                                ((VisualComponent) ve).component.current = 0.0;
+                            }
                             ve.X = cX;
                             ve.Y = cY;
                         }

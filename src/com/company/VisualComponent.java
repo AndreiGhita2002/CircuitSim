@@ -1,7 +1,6 @@
 package com.company;
 
 import javafx.scene.Cursor;
-import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseButton;
 
 public class VisualComponent extends VisualEntity {
@@ -65,7 +64,7 @@ public class VisualComponent extends VisualEntity {
                 case MOVE:
                     clickedOn = true;
                     break;
-                case ROTATING:
+                case ROTATE:
                     rotateOnce();
                     Editor.updateVisual();
                     break;
@@ -90,15 +89,18 @@ public class VisualComponent extends VisualEntity {
             }
             setImage(imageName);
         }
-
+        // special behaviour for Lamps
+        if (component instanceof Lamp) {
+            String imageName;
+            if (this.component.getBrightness() != 0) {
+                imageName = "Lamp1.png";
+            } else {
+                imageName = "Lamp0.png";
+            }
+            setImage(imageName);
+        }
         // rotating the VisualComponent until it's the correct way
         this.rotateProperty().setValue(90 * orientation);
-
-        // setting the glow
-        Glow glow = new Glow();
-        glow.setLevel(component.getBrightness());
-        this.setEffect(glow);
-
         super.refresh();
     }
 

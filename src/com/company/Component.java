@@ -34,8 +34,8 @@ public abstract class Component extends DefaultEdge {
     }
 
     String toLongString() {
-        double v = (int)(PD * 100.0) / 100.0;
-        double i = (int)(current * 100.0) / 100.0;
+        double v = Math.abs((int)(PD * 100.0) / 100.0);
+        double i = Math.abs((int)(current * 100.0) / 100.0);
 
         String out = getType() + " " + name + "\n";
         out += "Voltage: " + v + " V\n";
