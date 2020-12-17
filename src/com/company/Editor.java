@@ -306,6 +306,9 @@ public class Editor extends Application {
     ArrayList<Button> initButtons() {
         ArrayList<Button> list = new ArrayList<>();
 
+        //TODO highlighted the buttons based on what's selected
+        // atm the wire button is highlighted on startup
+
         // initialising placing buttons
         for (int i = 0; i < Placing.values().length; i++) {
             String str = Placing.values()[i].toString();

@@ -10,3 +10,4 @@ CircuitSim is a basic circuit and electronics simulation I'm making part of the 
 ###External Libraries used:
 - javafx 11.0
 - Jama 1.0.3
+- jgrapht 1.5.0
