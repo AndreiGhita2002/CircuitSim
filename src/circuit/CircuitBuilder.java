@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;

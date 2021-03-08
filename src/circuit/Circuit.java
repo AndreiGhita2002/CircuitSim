@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 import Jama.Matrix;
 import org.jgrapht.alg.cycle.StackBFSFundamentalCycleBasis;

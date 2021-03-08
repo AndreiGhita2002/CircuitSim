@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 import javafx.scene.Cursor;
 import javafx.scene.input.MouseButton;

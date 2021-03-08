@@ -1,0 +1,232 @@
+@startuml
+
+title __CircuitSim's Class Diagram__\n
+
+  namespace circuit {
+    class circuit.Battery {
+        ~ Battery()
+        ~ Battery()
+        ~ getType()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.Circuit {
+        ~ cycles : List<List<Component>>
+        ~ graph : Multigraph<WireNode, Component>
+        + toString()
+        ~ addWireNode()
+        ~ findCommonComponents()
+        ~ findLoops()
+        ~ getNodeWithID()
+        ~ reset()
+        ~ resetCurrents()
+        ~ solve()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.CircuitBuilder {
+        ~ connections : ArrayList<String>
+        ~ entityList : ArrayList<VisualEntity>
+        {static} ~ gridCellHeight : int
+        {static} ~ gridCellWidth : int
+        ~ CircuitBuilder()
+        ~ buildFromFile()
+        ~ buildFromString()
+        ~ connectWiresInNode()
+        ~ copyComponent()
+        ~ getEntityListCopy()
+        ~ getVisualEntity()
+        ~ saveToFile()
+        ~ updateCircuit()
+    }
+  }
+  
+
+  namespace circuit {
+    abstract class circuit.Component {
+        ~ PD : Double
+        ~ closed : boolean
+        ~ current : Double
+        ~ name : String
+        {static} ~ nextID : int
+        ~ resistance : Double
+        + getSource()
+        + getTarget()
+        + toString()
+        ~ Component()
+        ~ calculateVoltage()
+        ~ getBrightness()
+        {abstract} ~ getType()
+        {static} ~ initComponent()
+        ~ toLongString()
+        ~ toSaveFormat()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.Editor {
+        {static} + builder : CircuitBuilder
+        {static} + circuit : Circuit
+        {static} + entityList : ArrayList<VisualEntity>
+        {static} ~ H : int
+        {static} ~ W : int
+        {static} ~ editorRoot : Group
+        {static} ~ examplesPath : String
+        {static} ~ gridCellHeight : int
+        {static} ~ gridCellNumber : int
+        {static} ~ gridCellWidth : int
+        {static} ~ infoLabel : Label
+        {static} ~ placingNow : Placing
+        {static} ~ potentialField : TextField
+        {static} ~ potentialLabel : Label
+        {static} ~ resistanceField : TextField
+        {static} ~ resistanceLabel : Label
+        {static} ~ resultLabel : Label
+        {static} ~ stg : Stage
+        {static} + main()
+        + start()
+        ~ clear()
+        ~ drawGrid()
+        ~ getCurrentComponentSelection()
+        {static} ~ getVisualEntity()
+        ~ initButtons()
+        ~ load()
+        ~ load()
+        {static} ~ modify()
+        ~ newComponent()
+        ~ newComponent()
+        ~ newWireNode()
+        ~ newWireNode()
+        ~ save()
+        ~ solveCircuit()
+        {static} ~ updateVisual()
+    }
+  }
+  
+
+  namespace circuit {
+    enum Placing {
+      BATTERY
+      DELETE
+      LIGHT
+      MODIFY
+      MOVE
+      RESISTOR
+      ROTATE
+      SWITCH
+      WIRE
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.Lamp {
+        ~ Lamp()
+        ~ getBrightness()
+        ~ getType()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.Resistor {
+        ~ Resistor()
+        ~ getType()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.Switch {
+        ~ Switch()
+        ~ getType()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.VisualComponent {
+        ~ orientation : int
+        + toString()
+        ~ VisualComponent()
+        ~ VisualComponent()
+        ~ orientation()
+        ~ refresh()
+        ~ rotateOnce()
+        ~ setOrientation()
+        ~ toSaveFormat()
+    }
+  }
+  
+
+  namespace circuit {
+    abstract class circuit.VisualEntity {
+        {static} # defaultImage : String
+        {static} # folderURL : String
+        ~ X : Integer
+        ~ Y : Integer
+        ~ clickedOn : boolean
+        ~ east : boolean
+        ~ north : boolean
+        ~ south : boolean
+        ~ toDelete : boolean
+        ~ west : boolean
+        # setImage()
+        ~ orientation()
+        ~ refresh()
+        ~ rotateOnce()
+        ~ setOrientation()
+        ~ toSaveFormat()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.VisualWireNode {
+        ~ highlighted : boolean
+        + toString()
+        ~ VisualWireNode()
+        ~ highlight()
+        ~ refresh()
+    }
+  }
+  
+
+  namespace circuit {
+    class circuit.WireNode {
+        ~ ID : int
+        {static} ~ nextID : int
+        + toString()
+        ~ WireNode()
+    }
+  }
+  
+
+  circuit.Battery -up-|> circuit.Component
+  circuit.Editor o-- circuit.Circuit
+  circuit.CircuitBuilder --o circuit.Editor
+  circuit.VisualEntity --o circuit.Editor
+  circuit.WireNode --o circuit.VisualWireNode
+  circuit.Component -up-|> org.jgrapht.graph.DefaultEdge
+  circuit.Editor -up-|> javafx.application.Application
+  circuit.Lamp -up-|> circuit.Component
+  circuit.Resistor -up-|> circuit.Component
+  circuit.Switch -up-|> circuit.Component
+  circuit.VisualComponent -up-|> circuit.VisualEntity
+  circuit.VisualComponent o-- circuit.Component
+  circuit.VisualEntity -up-|> javafx.scene.image.ImageView
+  circuit.VisualWireNode -up-|> circuit.VisualEntity
+
+right footer
+
+PlantUML diagram generated by SketchIt! (https://bitbucket.org/pmesmeur/sketch.it)
+For more information about this tool, please contact philippe.mesmeur@gmail.com
+
+end footer
+
+@enduml

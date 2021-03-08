@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 import org.jgrapht.graph.DefaultEdge;
 

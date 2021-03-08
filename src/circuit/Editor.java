@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 import javafx.application.Application;
 import javafx.geometry.Orientation;
@@ -43,7 +43,7 @@ public class Editor extends Application {
     static TextField resistanceField = new TextField("");
     static TextField potentialField = new TextField("");
     static Label resistanceLabel = new Label("Resistance:  in Ω");
-    static Label potentialLabel  = new Label("EMF          in V");
+    static Label potentialLabel  = new Label("EMF:         in V");
     static Label resultLabel = new Label();
     static Group editorRoot = new Group();
     static Stage stg;

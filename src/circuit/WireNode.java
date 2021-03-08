@@ -1,4 +1,4 @@
-package com.company;
+package circuit;
 
 
 public class WireNode {
