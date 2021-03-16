@@ -1,0 +1,7 @@
+module circuit {
+    requires javafx.controls;
+    requires org.jgrapht.core;
+    requires jama;
+
+    exports circuit;
+}
