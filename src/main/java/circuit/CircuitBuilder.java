@@ -6,6 +6,7 @@ import javafx.scene.paint.Color;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -130,6 +131,23 @@ public class CircuitBuilder {
                 if (ve.orientation() == i % 4) {
                     connections.add("2 " + newNode.ID + " " + ((VisualComponent) ve).component.name);
                 }
+            }
+        }
+    }
+
+    void buildFromFile(String fileName) {
+        ClassLoader classLoader = getClass().getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream(fileName);
+
+        // the stream holding the file content
+        if (inputStream == null) {
+            throw new IllegalArgumentException("file not found! " + fileName);
+        } else {
+            try {
+                String string = new String(inputStream.readAllBytes());
+                buildFromString(string);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     }

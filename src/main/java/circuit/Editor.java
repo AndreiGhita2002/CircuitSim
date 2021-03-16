@@ -15,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -27,29 +28,43 @@ public class Editor extends Application {
     static final int W = 800;
     static final int H = 800;
     static final int gridCellNumber = 12;
-    static final int gridCellWidth  = W / gridCellNumber;
+    static final int gridCellWidth = W / gridCellNumber;
     static final int gridCellHeight = H / gridCellNumber;
-    static final String examplesPath = "./resources/examples/";
+//    static final String examplesPath = "examples/";
 
-    public static Circuit circuit = new Circuit();
-    public static ArrayList<VisualEntity> entityList = new ArrayList<>();
-    public static CircuitBuilder builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
+    public static Circuit circuit;
+    public static ArrayList<VisualEntity> entityList;
+    public static CircuitBuilder builder;
 
     enum Placing {
         MOVE, WIRE, BATTERY, LIGHT, RESISTOR, SWITCH, ROTATE, DELETE, MODIFY
     }
+
     static Placing placingNow = Placing.MOVE;
-    static Label infoLabel = new Label("");
-    static TextField resistanceField = new TextField("");
-    static TextField potentialField = new TextField("");
-    static Label resistanceLabel = new Label("Resistance:  in Ω");
-    static Label potentialLabel  = new Label("EMF:         in V");
-    static Label resultLabel = new Label();
-    static Group editorRoot = new Group();
+    static Label infoLabel;
+    static TextField resistanceField;
+    static TextField potentialField;
+    static Label resistanceLabel;
+    static Label potentialLabel;
+    static Label resultLabel;
+    static Group editorRoot;
     static Stage stg;
 
     @Override
     public void start(Stage stage) {
+
+        circuit = new Circuit();
+        entityList = new ArrayList<>();
+        builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
+
+        infoLabel = new Label("");
+        resistanceField = new TextField("");
+        potentialField = new TextField("");
+        resistanceLabel = new Label("Resistance:  in Ω");
+        potentialLabel = new Label("EMF:         in V");
+        resultLabel = new Label();
+        editorRoot = new Group();
+
         stg = stage;
         SplitPane splitPane = new SplitPane();
         Scene scene = new Scene(splitPane, W + 100, H);
@@ -171,7 +186,7 @@ public class Editor extends Application {
         });
 
         // loading the starting circuit
-        load(new File(examplesPath + "start_example.circuit"));
+        load("examples/start_example.circuit");
     }
 
     Component getCurrentComponentSelection() {
@@ -235,11 +250,11 @@ public class Editor extends Application {
                 VisualEntity temp = getVisualEntity(ve.X, ve.Y - gridCellHeight);
                 ve.north = temp != null && (temp.orientation() == 0 || temp.orientation() == 2 || temp.orientation() == -1);
                 temp = getVisualEntity(ve.X + gridCellWidth, ve.Y);
-                ve.east  = temp != null && (temp.orientation() == 1 || temp.orientation() == 3 || temp.orientation() == -1);
+                ve.east = temp != null && (temp.orientation() == 1 || temp.orientation() == 3 || temp.orientation() == -1);
                 temp = getVisualEntity(ve.X, ve.Y + gridCellHeight);
                 ve.south = temp != null && (temp.orientation() == 2 || temp.orientation() == 0 || temp.orientation() == -1);
                 temp = getVisualEntity(ve.X - gridCellWidth, ve.Y);
-                ve.west  = temp != null && (temp.orientation() == 3 || temp.orientation() == 1 || temp.orientation() == -1);
+                ve.west = temp != null && (temp.orientation() == 3 || temp.orientation() == 1 || temp.orientation() == -1);
             }
             ve.refresh();
         }
@@ -349,7 +364,8 @@ public class Editor extends Application {
             updateVisual();
             Editor.resultLabel.setBorder(new Border(new BorderStroke(Color.DARKGREEN, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
             Editor.resultLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTBLUE, null, null)));
-            Editor.resultLabel.setText("Solved!");
+            Editor.resultLabel.setFont(Font.font(18));
+            Editor.resultLabel.setText(" Solved! Mouse over a component to see its voltage and current values. ");
             Editor.resultLabel.setVisible(true);
         }
     }
@@ -367,16 +383,29 @@ public class Editor extends Application {
     void load() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select circuit file");
-        fileChooser.setInitialDirectory(new File(examplesPath));
+        fileChooser.setInitialDirectory(new File("."));
         File file = fileChooser.showOpenDialog(stg);
-        load(file);
-    }
-
-    void load(File file) {
         if (file == null) return;
 
         clear();
         builder.buildFromFile(file);
+
+        List<VisualEntity> listCopy = builder.getEntityListCopy();
+        entityList.clear();
+
+        for (VisualEntity ve : listCopy) {
+            if (ve instanceof VisualComponent) {
+                newComponent((VisualComponent) ve);
+            } else if (ve instanceof VisualWireNode) {
+                newWireNode((VisualWireNode) ve);
+            }
+        }
+        updateVisual();
+    }
+
+    void load(String fileName) {
+        clear();
+        builder.buildFromFile(fileName);
 
         List<VisualEntity> listCopy = builder.getEntityListCopy();
         entityList.clear();

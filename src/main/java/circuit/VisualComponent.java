@@ -21,7 +21,25 @@ public class VisualComponent extends VisualEntity {
         this.X = x;
         this.Y = y;
         this.orientation = orientation;
-        setImage(component.getType() + ".png");
+
+        // special behaviour for Switches
+        if (component instanceof Switch) {
+            String imageName;
+            if (this.component.closed) {
+                imageName = "Switch1.png";
+            } else {
+                imageName = "Switch0.png";
+            }
+            setImage(imageName);
+        } else if (component instanceof Lamp) {
+            String imageName;
+            if (this.component.getBrightness() != 0) {  //TODO make this (lamp light) work properly
+                imageName = "Lamp1.png";
+            } else {
+                imageName = "Lamp0.png";
+            }
+            setImage(imageName);
+        } else setImage(component.getType() + ".png");
 
         setOnMouseEntered(event -> {
             getScene().setCursor(Cursor.HAND); //Change cursor to hand

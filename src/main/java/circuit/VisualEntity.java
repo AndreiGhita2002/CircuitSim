@@ -16,7 +16,7 @@ public abstract class VisualEntity extends ImageView {
     boolean west  = false;
     boolean east  = false;
 
-    protected static final String folderURL = "file:resources/textures/";
+    protected static final String folderURL = "textures/";
     protected static final String defaultImage = "whales.png";
 
     protected void setImage(String imageName) {

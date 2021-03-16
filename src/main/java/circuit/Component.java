@@ -67,6 +67,7 @@ public abstract class Component extends DefaultEdge {
             case "battery":
                 comp = new Battery(pd, res);
                 break;
+            case "lamp":
             case "lightbulb":
                 comp = new Lamp(res);
                 break;
@@ -76,6 +77,8 @@ public abstract class Component extends DefaultEdge {
             case "switch":
                 comp = new Switch(true);
                 break;
+            default:
+                System.out.println(type);
         }
         if (comp != null) comp.name = name;
         return comp;
