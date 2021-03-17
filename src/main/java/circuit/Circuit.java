@@ -22,7 +22,6 @@ public class Circuit {
         List<List<Component>> results = new ArrayList<>(cyclesAlg.getCycleBasis().getCycles());
 
         cycles = new ArrayList<>(results);
-//        System.out.println("Cycles found: " + results);
     }
 
     void solve() {
@@ -52,13 +51,9 @@ public class Circuit {
             voltages.set(i, 0, voltSum);
         }
 
-//        resistance.print(2, 1);
-//        voltages.print(2, 1);
-
         // solving the matrix
         // resistance * currents = voltages
         Matrix currents = resistance.solve(voltages);
-//        currents.print(2, 1);
 
         // new we need to change the current of all components
         // each cycle has it's own current
