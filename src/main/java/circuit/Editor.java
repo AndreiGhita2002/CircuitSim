@@ -433,6 +433,41 @@ public class Editor extends Application {
         entityList.clear();
     }
 
+    static String getInfoString() {
+        switch (placingNow) {
+            case BATTERY:
+                return "Places a BATTERY. Click on an empty space to place it. \n" +
+                        "The battery can have internal resistance.";
+            case LIGHT:
+                return "Places a LIGHTBULB. Click on an empty space to place it. \n" +
+                        "The lightbulb lights up if current goes through it.";
+            case RESISTOR:
+                return "Places a RESISTOR. Click on an empty space to place it. \n" +
+                        "To modify its resistance value, you need to select it using the modify button. ";
+            case SWITCH:
+                return "Places a SWITCH. Click on an empty space to place it. \n" +
+                        "Right click on a placed switch to open/close it. ";
+            case WIRE:
+                return "Places a WIRE. Click on an empty space to place it. \n" +
+                        "Wires connect to adjacent wires or components";
+            case MOVE:
+                return "MOVES a wire or a component. \n" +
+                        "Click an object and then click an empty spot to place it";
+            case ROTATE:
+                return "ROTATES a component. \n" +
+                        "Click a component to rotate it by 90 degrees. ";
+            case MODIFY:
+                return "MODIFIES a component. \n" +
+                        "Click a component to modify its values. ";
+            case DELETE:
+                return "DELETES a component or a wire. \n" +
+                        "Click an object to delete it. ";
+            default:
+                System.out.println(placingNow);
+                return null;
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

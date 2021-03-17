@@ -1,8 +1,5 @@
 package circuit;
 
-import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -94,15 +91,17 @@ public class CircuitBuilder {
             try {
                 // adding the edge in the graph, unless it's null or an open (off) Switch
                 if (component != null && component.closed) {
+                    //TODO sometimes breaks
+                    // should be reduced to a single node
                     circuit.graph.addEdge(source, target, component);
                 }
             } catch (Exception e) {
-                Editor.resultLabel.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
-                Editor.resultLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.HOTPINK, null, null)));
-                Editor.resultLabel.setText("Short circuit detected;\nPlease check your circuit");
-                Editor.resultLabel.setVisible(true);
-//                System.out.println("Shorted");
-                return false;
+                e.printStackTrace();
+//                Editor.resultLabel.setBorder(new Border(new BorderStroke(Color.RED, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
+//                Editor.resultLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.HOTPINK, null, null)));
+//                Editor.resultLabel.setText("Short circuit detected;\nPlease check your circuit");
+//                Editor.resultLabel.setVisible(true);
+//                return false;
             }
         }
         return true;

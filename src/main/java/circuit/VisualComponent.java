@@ -22,7 +22,8 @@ public class VisualComponent extends VisualEntity {
         this.Y = y;
         this.orientation = orientation;
 
-        // special behaviour for Switches
+        // sets the image associated with the component
+        // Switches and Lamps have their image set depending on state
         if (component instanceof Switch) {
             String imageName;
             if (this.component.closed) {
@@ -31,15 +32,17 @@ public class VisualComponent extends VisualEntity {
                 imageName = "Switch0.png";
             }
             setImage(imageName);
-        } else if (component instanceof Lamp) {
+        }
+        else if (component instanceof Lamp) {
             String imageName;
-            if (this.component.getBrightness() != 0) {  //TODO make this (lamp light) work properly
+            if (this.component.getBrightness() != 0) {  //TODO improve the lamp light
                 imageName = "Lamp1.png";
             } else {
                 imageName = "Lamp0.png";
             }
             setImage(imageName);
-        } else setImage(component.getType() + ".png");
+        }
+        else setImage(component.getType() + ".png");
 
         setOnMouseEntered(event -> {
             getScene().setCursor(Cursor.HAND); //Change cursor to hand

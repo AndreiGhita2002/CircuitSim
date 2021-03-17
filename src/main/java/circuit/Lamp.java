@@ -15,6 +15,10 @@ public class Lamp extends Component {
         return "Lamp";
     }
 
+    static String getInfo() {
+        return "";
+    }
+
     Lamp(Double resistance) {
         super();
         this.resistance = resistance;
