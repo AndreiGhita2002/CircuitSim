@@ -42,6 +42,7 @@ public class Editor extends Application {
 
     static Placing placingNow = Placing.MOVE;
     static Label infoLabel;
+    static Label tooltipLabel;
     static TextField resistanceField;
     static TextField potentialField;
     static Label resistanceLabel;
@@ -58,6 +59,7 @@ public class Editor extends Application {
         builder = new CircuitBuilder(entityList, circuit, gridCellWidth, gridCellHeight);
 
         infoLabel = new Label("");
+        tooltipLabel = new Label();
         resistanceField = new TextField("");
         potentialField = new TextField("");
         resistanceLabel = new Label("Resistance:  in Ω");
@@ -81,6 +83,10 @@ public class Editor extends Application {
         infoLabel.setBorder(new Border(new BorderStroke(Color.WHEAT, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, BorderStroke.DEFAULT_WIDTHS)));
         infoLabel.setLayoutX(500);
         infoLabel.setLayoutY(500);
+        tooltipLabel.backgroundProperty().setValue(new Background(new BackgroundFill(Color.LIGHTGRAY, null, null)));
+        tooltipLabel.setFont(Font.font(13));
+        tooltipLabel.setLayoutX(200);
+        tooltipLabel.setLayoutY(700);
         resistanceField.setVisible(false);
         potentialField.setVisible(false);
         resistanceLabel.setVisible(false);
@@ -94,6 +100,7 @@ public class Editor extends Application {
         editorRoot.getChildren().add(editorCanvas);
         editorRoot.getChildren().add(infoLabel);
         editorRoot.getChildren().add(resultLabel);
+        editorRoot.getChildren().add(tooltipLabel);
         menu.getChildren().addAll(buttonList);
         menu.getChildren().add(new Label("\n\n\n"));
         menu.getChildren().add(resistanceLabel);
@@ -151,10 +158,11 @@ public class Editor extends Application {
                 }
                 if (validPosition) {
                     Component comp = getCurrentComponentSelection();
-                    if (comp == null) {
-                        newWireNode(cX, cY);
-                    } else {
+                    if (comp != null) {
                         newComponent(comp, cX, cY);
+
+                    } else if (placingNow.equals(Placing.WIRE)) {
+                        newWireNode(cX, cY);
                     }
                 }
             }
@@ -187,6 +195,7 @@ public class Editor extends Application {
 
         // loading the starting circuit
         load("examples/start_example.circuit");
+        refreshTooltip();
     }
 
     Component getCurrentComponentSelection() {
@@ -333,7 +342,10 @@ public class Editor extends Application {
             Button button = new Button(str);
 
             int ci = i;
-            button.setOnAction(e -> placingNow = Placing.values()[ci]);
+            button.setOnAction(e -> {
+                placingNow = Placing.values()[ci];
+                refreshTooltip();
+            });
             list.add(button);
         }
 
@@ -433,39 +445,50 @@ public class Editor extends Application {
         entityList.clear();
     }
 
-    static String getInfoString() {
+    static void refreshTooltip() {
+        String str = "Current Selection: " + placingNow.toString() + "\n";
         switch (placingNow) {
             case BATTERY:
-                return "Places a BATTERY. Click on an empty space to place it. \n" +
+                str += "Places a BATTERY. Click on an empty space to place it. \n" +
                         "The battery can have internal resistance.";
+                break;
             case LIGHT:
-                return "Places a LIGHTBULB. Click on an empty space to place it. \n" +
+                str += "Places a LIGHTBULB. Click on an empty space to place it. \n" +
                         "The lightbulb lights up if current goes through it.";
+                break;
             case RESISTOR:
-                return "Places a RESISTOR. Click on an empty space to place it. \n" +
+                str += "Places a RESISTOR. Click on an empty space to place it. \n" +
                         "To modify its resistance value, you need to select it using the modify button. ";
+                break;
             case SWITCH:
-                return "Places a SWITCH. Click on an empty space to place it. \n" +
+                str += "Places a SWITCH. Click on an empty space to place it. \n" +
                         "Right click on a placed switch to open/close it. ";
+                break;
             case WIRE:
-                return "Places a WIRE. Click on an empty space to place it. \n" +
+                str += "Places a WIRE. Click on an empty space to place it. \n" +
                         "Wires connect to adjacent wires or components";
+                break;
             case MOVE:
-                return "MOVES a wire or a component. \n" +
+                str += "MOVES a wire or a component. \n" +
                         "Click an object and then click an empty spot to place it";
+                break;
             case ROTATE:
-                return "ROTATES a component. \n" +
+                str += "ROTATES a component. \n" +
                         "Click a component to rotate it by 90 degrees. ";
+                break;
             case MODIFY:
-                return "MODIFIES a component. \n" +
-                        "Click a component to modify its values. ";
+                str += "MODIFIES a component. \n" +
+                        "Click a component to modify its values. \n" +
+                        "Remember to press ENTER after you've entered the new value to save it. ";
+                break;
             case DELETE:
-                return "DELETES a component or a wire. \n" +
+                str += "DELETES a component or a wire. \n" +
                         "Click an object to delete it. ";
+                break;
             default:
-                System.out.println(placingNow);
-                return null;
+                str += "Nothing selected";
         }
+        tooltipLabel.setText(str);
     }
 
     public static void main(String[] args) {
