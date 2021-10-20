@@ -1,6 +1,6 @@
 # CircuitSim
 
-CircuitSim is a basic circuit and electronics simulation I'm making part of the IB Computer Science HL course. The goal is to make a small and easy to use app that allows you to build and test some simple electronic circuits.
+CircuitSim is a basic circuit and electronics simulation I made as part of my IB Computer Science Higher Level course. The goal is to make a small and easy to use GUI app that allows you to build and test some simple electronic circuits.
 
 ### Features:
 - solving a DC circuit with any number of components, using Kirchhoff's circuit laws
